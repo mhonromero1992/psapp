@@ -44,11 +44,13 @@ export default function Equity() {
   const list = useShowMore(12);
 
   const rows = useMemo(() => [...contributions].reverse(), [contributions]);
+  // Point counts are chosen so the chart's axis labels never collide on a phone or a
+  // desktop: every two months for 1 and 5 years, year ends (plus the latest month) for All.
   const hist = useMemo(() => {
     const h = equity?.history ?? [];
-    if (range === "12m") return h.slice(-12);
-    if (range === "5y") return h.slice(-61);
-    // All years: one point per year end, plus the latest month.
+    const everyTwo = (months: number) => h.slice(-(months + 1)).filter((_, i, arr) => (arr.length - 1 - i) % 2 === 0);
+    if (range === "12m") return everyTwo(12);
+    if (range === "5y") return everyTwo(60);
     return h.filter((x, i) => x.period.endsWith("-12") || i === h.length - 1);
   }, [equity, range]);
 
@@ -121,7 +123,7 @@ export default function Equity() {
                 <span className="align-[0.52em] text-[0.4em] text-ink-2">.{cents}</span>
               </span>
             </p>
-            <p className="mt-3 text-[0.9375rem] text-ink-2">{t("These are sample figures for this prototype.", "Sample na halaga lang ang mga ito sa prototype.")}</p>
+            <p className="mt-3 text-[1rem] text-ink-2">{t("These are sample figures for this prototype.", "Sample na halaga lang ang mga ito sa prototype.")}</p>
 
             <div className="mt-7">
               <p className="text-[1.0625rem] font-semibold text-ink">{t("How your Equity Value is built", "Paano nabuo ang iyong Equity Value")}</p>
@@ -208,7 +210,7 @@ export default function Equity() {
               caption={t("Equity Value and total contributed over time", "Equity Value at kabuuang iniambag sa paglipas ng panahon")}
             />
             </div>
-            <p className="mt-3 text-[0.9375rem] text-ink-2">{t("Touch or hover the chart to see each month. Every amount is also listed below.", "Pindutin o i-hover ang chart para makita ang bawat buwan. Nakalista rin sa ibaba ang bawat halaga.")}</p>
+            <p className="mt-3 text-[1rem] text-ink-2">{t("Touch or hover the chart to read the amounts. Every month is also listed below.", "Pindutin o i-hover ang chart para mabasa ang halaga. Nakalista rin sa ibaba ang bawat buwan.")}</p>
           </section>
 
           {/* Ledger */}
@@ -238,17 +240,17 @@ export default function Equity() {
                     { key: "period", header: t("Month", "Buwan"), cell: (c) => <span className="font-semibold">{monthYear(c.period, lang)}</span> },
                     { key: "source", header: t("Paid through", "Paraan ng bayad"), cell: (c) => t(...SOURCE[c.source]) },
                     { key: "posted", header: t("Posted", "Na-post"), cell: (c) => date(c.postedAt) },
-                    { key: "ref", header: t("Reference", "Reference"), cell: (c) => <span className="tnum text-ink-2">{c.reference}</span> },
+                    { key: "ref", header: t("Reference", "Reference"), cell: (c) => <span className="tnum text-ink-2">{c.reference}</span>, wideOnly: true },
                     { key: "amount", header: t("Amount", "Halaga"), align: "right", cell: (c) => <span className="font-semibold">{peso(c.amount)}</span> },
                   ]}
                 />
                 <ShowMoreButton shown={shown.length} total={rows.length} step={12} onMore={list.more} noun={{ en: "months", fil: "buwan" }} />
               </>
             )}
-            <HelpLink topic="Equity Value and contributions" className="mt-6" />
           </section>
         </div>
       )}
+      <HelpLink topic="Equity Value and contributions" className="mt-6" />
     </div>
   );
 }

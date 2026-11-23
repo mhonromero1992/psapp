@@ -4,6 +4,7 @@ import { dateTime } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { Stepper } from "@/components/ui/Timeline";
+import { WRAP_BTN } from "./Page";
 import type { TimelineEvent } from "@/data/types";
 
 /** "Step 2 of 5: How much" in words above the numbered stepper. */
@@ -15,8 +16,16 @@ export function FlowProgress({ steps, current, className }: { steps: string[]; c
         {t(`Step ${current + 1} of ${steps.length}`, `Hakbang ${current + 1} sa ${steps.length}`)}
         <span className="text-ink">: {steps[current]}</span>
       </p>
-      {/* The words above name the step; the stepper's own labels truncate when there are many steps. */}
-      <Stepper steps={steps} current={current} className="mt-3 [&_.truncate]:hidden" />
+      {/* The words above name the step. Narrow screens (or very large text) get a segmented
+          bar; wide ones the numbered stepper, without its labels, which truncate at six steps. */}
+      <div className="@container">
+        <div className="mt-3 flex gap-1.5 @lg:hidden" aria-hidden>
+          {steps.map((s, i) => (
+            <span key={s} className={cn("h-2.5 flex-1 rounded-full", i < current ? "bg-green-700" : i === current ? "bg-primary-strong" : "bg-sunken shadow-[inset_0_0_0_1px_var(--line-strong)]")} />
+          ))}
+        </div>
+        <Stepper steps={steps} current={current} className="mt-3 hidden @lg:flex [&_.truncate]:hidden" />
+      </div>
     </div>
   );
 }
@@ -27,13 +36,13 @@ export function FlowNav({ onBack, onNext, nextLabel, nextIcon, loading, backLabe
   return (
     <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
       {onBack ? (
-        <Button variant="quiet" size="lg" onClick={onBack} icon={<ArrowLeft size="1.15rem" weight="bold" />} className="sm:min-w-[9rem]">
+        <Button variant="quiet" size="lg" onClick={onBack} icon={<ArrowLeft size="1.15rem" weight="bold" />} className={cn("sm:min-w-[9rem]", WRAP_BTN)}>
           {backLabel ?? t("Back", "Bumalik")}
         </Button>
       ) : (
         <span className="hidden sm:block" />
       )}
-      <Button size="lg" onClick={onNext} loading={loading} iconRight={nextIcon === undefined ? <ArrowRight size="1.15rem" weight="bold" /> : nextIcon} className="sm:min-w-[12rem]">
+      <Button size="lg" onClick={onNext} loading={loading} iconRight={nextIcon === undefined ? <ArrowRight size="1.15rem" weight="bold" /> : nextIcon} className={cn("sm:min-w-[12rem]", WRAP_BTN)}>
         {nextLabel ?? t("Continue", "Magpatuloy")}
       </Button>
     </div>

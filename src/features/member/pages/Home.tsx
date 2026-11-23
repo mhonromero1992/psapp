@@ -186,7 +186,7 @@ function EquityHero({ equity, joinedAt, className }: { equity: NonNullable<Retur
   const whole = Math.floor(equity.equityValue);
   const cents = Math.round((equity.equityValue - whole) * 100).toString().padStart(2, "0");
   return (
-    <section aria-labelledby="equity-hero" className={cn("relative isolate overflow-hidden rounded-xl bg-night p-5 text-white shadow-e2 sm:p-7 dark:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07),var(--e2)]", className)}>
+    <section aria-labelledby="equity-hero" className={cn("relative isolate flex flex-col overflow-hidden rounded-xl bg-night p-5 text-white shadow-e2 sm:p-7 dark:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07),var(--e2)]", className)}>
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(90%_80%_at_100%_0%,rgb(16_84_164/0.42),transparent_62%)]" />
       <BladeMark size={360} rim={false} className="pointer-events-none absolute -right-28 -top-28 -z-10 size-[21rem] rotate-[14deg] opacity-[0.13] sm:-right-16" />
       <div className="grain" aria-hidden />
@@ -207,7 +207,7 @@ function EquityHero({ equity, joinedAt, className }: { equity: NonNullable<Retur
           <span className="align-[0.5em] text-[0.42em] text-white/70">.{cents}</span>
         </span>
       </p>
-      <p className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-white/10 px-3 py-1.5 text-[0.9375rem] font-semibold text-green-300">
+      <p className="mt-4 inline-flex items-center gap-2 self-start rounded-[8px] bg-white/10 px-3 py-1.5 text-[0.9375rem] font-semibold text-green-300">
         <TrendUp size="1.1rem" weight="bold" aria-hidden />
         {t(`${peso(added)} added since January`, `${peso(added)} ang nadagdag mula Enero`)}
       </p>
@@ -225,7 +225,7 @@ function EquityHero({ equity, joinedAt, className }: { equity: NonNullable<Retur
         </div>
       </dl>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
         <ButtonLink to="/member/equity" variant="light" size="lg" iconRight={<ArrowRight size="1.1rem" weight="bold" />}>
           {t("View statement", "Tingnan ang statement")}
         </ButtonLink>

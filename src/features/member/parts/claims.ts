@@ -19,11 +19,11 @@ export const BENEFIT_ICON: Record<ClaimType, Icon> = {
 export const OPEN_CLAIM: ClaimStatus[] = ["submitted", "docs_review", "evaluation", "approved", "for_payout", "returned"];
 
 export const CLAIM_STAGES = [
-  { key: "filed", en: "Filed", fil: "Naisampa", event: "Claim filed" },
-  { key: "docs", en: "Documents", fil: "Dokumento", event: "Documents under review" },
-  { key: "eval", en: "Evaluation", fil: "Pagsusuri", event: "Benefit evaluation" },
-  { key: "approved", en: "Approved", fil: "Aprubado", event: "Benefit approved" },
-  { key: "paid", en: "Paid", fil: "Bayad na", event: "Paid to account" },
+  { key: "filed", en: "Filed", fil: "Naisampa", event: "Claim filed", nextEn: "Filing", nextFil: "Pag-file" },
+  { key: "docs", en: "Documents", fil: "Dokumento", event: "Documents under review", nextEn: "Document check", nextFil: "Pagsusuri ng dokumento" },
+  { key: "eval", en: "Evaluation", fil: "Pagsusuri", event: "Benefit evaluation", nextEn: "Evaluation", nextFil: "Pagsusuri" },
+  { key: "approved", en: "Approved", fil: "Aprubado", event: "Benefit approved", nextEn: "Approval", nextFil: "Pag-apruba" },
+  { key: "paid", en: "Paid", fil: "Bayad na", event: "Paid to account", nextEn: "Payment to your account", nextFil: "Pagpapadala ng bayad" },
 ] as const;
 
 /** Where a claim sits on the five-stage track, and whether it is moving, blocked or ended. */

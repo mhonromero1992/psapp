@@ -63,7 +63,7 @@ export function StageTracker({ claim, size = "md", className }: { claim: Claim; 
           ))}
         </div>
         <p className="mt-2.5 text-[1rem] font-semibold leading-snug text-ink">{summary}</p>
-        {!done && mode === "active" && nextStage && <p className="mt-0.5 text-[0.9375rem] text-ink-2">{t(`Next: ${nextStage.en}`, `Susunod: ${nextStage.fil}`)}</p>}
+        {!done && mode === "active" && nextStage && <p className="mt-0.5 text-[0.9375rem] text-ink-2">{t(`Next: ${nextStage.nextEn}`, `Susunod: ${nextStage.nextFil}`)}</p>}
       </div>
 
       {/* Wide: nodes, labels, dates */}

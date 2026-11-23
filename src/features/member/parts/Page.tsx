@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/States";
 import { BladeMark } from "@/components/brand/BladeMark";
 import { HelpLink } from "./Help";
 
+/** Lets a button's label wrap at large text sizes instead of pushing the page wider. */
+export const WRAP_BTN = "h-auto min-h-[var(--btn-h)] whitespace-normal py-2.5 text-center leading-snug";
+
 /*
  * Page furniture for the Member App, sized for older members: rem everywhere (so the
  * Text size setting scales it), sentences at 1rem or more in ink or ink-2, targets of
@@ -36,7 +39,7 @@ export function PageHead({
           {helper && <p className="mt-3 max-w-[36rem] text-[1.0625rem] leading-relaxed text-ink-2">{helper}</p>}
           {meta && <div className="mt-3.5 flex flex-wrap items-center gap-2">{meta}</div>}
         </div>
-        {action && <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:pb-1 [&>*]:w-full md:[&>*]:w-auto">{action}</div>}
+        {action && <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:pb-1 [&>*]:h-auto [&>*]:min-h-[var(--btn-h)] [&>*]:w-full [&>*]:whitespace-normal [&>*]:py-2.5 md:[&>*]:w-auto">{action}</div>}
       </div>
     </header>
   );
@@ -95,7 +98,7 @@ export function Empty({ title, body, action, helpTopic, compact, className }: { 
       </div>
       <p className="font-display text-[1.25rem] font-bold [font-stretch:92%]">{title}</p>
       {body && <p className="mt-1.5 max-w-sm text-[1rem] leading-relaxed text-ink-2">{body}</p>}
-      {action && <div className="mt-5 w-full max-w-xs [&>*]:w-full">{action}</div>}
+      {action && <div className="mt-5 w-full max-w-xs [&>*]:h-auto [&>*]:min-h-[var(--btn-h)] [&>*]:w-full [&>*]:whitespace-normal [&>*]:py-2.5">{action}</div>}
       {helpTopic && <HelpLink topic={helpTopic} className="mt-3" />}
     </div>
   );
@@ -111,7 +114,7 @@ export function LoadError({ onRetry, helpTopic = "Something else", className }: 
       </div>
       <p className="font-display text-[1.25rem] font-bold [font-stretch:92%]">{t("We couldn't load this", "Hindi namin ito ma-load")}</p>
       <p className="mt-1.5 max-w-sm text-[1rem] leading-relaxed text-ink-2">{t("The connection dropped while loading. Your records are safe. Please try again.", "Naputol ang koneksyon habang naglo-load. Ligtas ang iyong records. Pakisubukan ulit.")}</p>
-      <Button size="lg" variant="quiet" className="mt-5" icon={<ArrowClockwise size="1.2rem" weight="bold" />} onClick={onRetry}>
+      <Button size="lg" variant="quiet" className={cn("mt-5", WRAP_BTN)} icon={<ArrowClockwise size="1.2rem" weight="bold" />} onClick={onRetry}>
         {t("Try again", "Subukan ulit")}
       </Button>
       <HelpLink topic={helpTopic} className="mt-3" />
@@ -178,7 +181,7 @@ export function ShowMoreButton({ shown, total, step, onMore, noun }: { shown: nu
   const next = Math.min(step, total - shown);
   return (
     <div className="mt-3">
-      <Button variant="quiet" size="lg" block onClick={onMore} icon={<CaretDown size="1.1rem" weight="bold" />}>
+      <Button variant="quiet" size="lg" block className={WRAP_BTN} onClick={onMore} icon={<CaretDown size="1.1rem" weight="bold" />}>
         {t(`Show ${next} more ${noun.en}`, `Ipakita ang ${next} pang ${noun.fil}`)}
       </Button>
       <p className="mt-2 text-center text-[0.9375rem] text-ink-2">{t(`Showing ${shown} of ${total}`, `${shown} sa ${total} ang ipinapakita`)}</p>
@@ -187,15 +190,15 @@ export function ShowMoreButton({ shown, total, step, onMore, noun }: { shown: nu
 }
 
 /** A plain table for wide screens: 1rem cells, 3.5rem rows, no sorting or paging. */
-export function SimpleTable<T>({ caption, rows, rowKey, columns, className }: { caption: string; rows: T[]; rowKey: (r: T) => string; columns: { key: string; header: string; cell: (r: T) => React.ReactNode; align?: "left" | "right" }[]; className?: string }) {
+export function SimpleTable<T>({ caption, rows, rowKey, columns, className }: { caption: string; rows: T[]; rowKey: (r: T) => string; columns: { key: string; header: string; cell: (r: T) => React.ReactNode; align?: "left" | "right"; wideOnly?: boolean }[]; className?: string }) {
   return (
-    <div className={cn("overflow-hidden rounded-lg bg-surface shadow-e1", className)}>
+    <div className={cn("scroll-quiet overflow-x-auto rounded-lg bg-surface shadow-e1", className)}>
       <table className="w-full border-collapse text-left text-[1rem]">
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="bg-surface-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={cn("h-12 whitespace-nowrap px-4 text-[0.9375rem] font-semibold text-ink-2 shadow-[inset_0_-1px_0_var(--line)]", c.align === "right" && "text-right")}>
+              <th key={c.key} scope="col" className={cn("h-12 whitespace-nowrap px-4 text-[0.9375rem] font-semibold text-ink-2 shadow-[inset_0_-1px_0_var(--line)]", c.align === "right" && "text-right", c.wideOnly && "hidden xl:table-cell")}>
                 {c.header}
               </th>
             ))}
@@ -205,7 +208,7 @@ export function SimpleTable<T>({ caption, rows, rowKey, columns, className }: { 
           {rows.map((r) => (
             <tr key={rowKey(r)} className="shadow-[inset_0_-1px_0_var(--line)] last:shadow-none">
               {columns.map((c) => (
-                <td key={c.key} className={cn("h-14 px-4 align-middle text-ink", c.align === "right" && "text-right tnum")}>
+                <td key={c.key} className={cn("h-14 whitespace-nowrap px-4 align-middle text-ink", c.align === "right" && "text-right tnum", c.wideOnly && "hidden xl:table-cell")}>
                   {c.cell(r)}
                 </td>
               ))}

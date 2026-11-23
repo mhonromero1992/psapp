@@ -231,7 +231,7 @@ function ProductCard({ productId, max, elig }: { productId: string; max: number;
           <dd className="text-[1.0625rem] font-semibold text-ink">{t(`${longest} months`, `${longest} buwan`)}</dd>
         </div>
       </dl>
-      {p.id === "POL" && <p className="mt-3 text-[0.9375rem] text-ink-2">{t("Your limit is 90% of your Equity Value.", "Ang limit mo ay 90% ng iyong Equity Value.")}</p>}
+      {p.id === "POL" && <p className="mt-3 text-[1rem] text-ink-2">{t("Your limit is 90% of your Equity Value.", "Ang limit mo ay 90% ng iyong Equity Value.")}</p>}
       <p className={cn("mt-3 flex items-start gap-2 text-[1rem] font-semibold leading-snug", tone === "positive" && "text-positive", tone === "caution" && "text-caution", tone === "negative" && "text-negative")}>
         <Icon size="1.25rem" weight="fill" className="mt-0.5 shrink-0" aria-hidden />
         <span>{t(elig.en, elig.fil)}</span>

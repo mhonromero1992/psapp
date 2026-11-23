@@ -14,6 +14,7 @@ import { LOAN_PRODUCTS } from "@/data/reference";
 import type { AppNotification, PayoutAccount } from "@/data/types";
 import { useDB } from "@/store/db";
 import { HelpLink } from "./Help";
+import { WRAP_BTN } from "./Page";
 import { relTime } from "./text";
 
 /* ── Wizard step frame ─────────────────────────────────────── */
@@ -75,8 +76,8 @@ export function SuccessPanel({ title, body, refLabel, refId, next, secondary, he
         <div className="mt-6 rounded-lg bg-sunken p-4">
           <p className="text-[0.9375rem] font-semibold text-ink-2">{refLabel}</p>
           <p className="mt-1 break-all font-display text-[1.6rem] font-bold leading-tight tracking-[-0.01em] tnum [font-stretch:90%]">{refId}</p>
-          <p className="mt-1 text-[0.9375rem] text-ink-2">{t("Keep this number. Our staff will ask for it if you call.", "Itago ang numerong ito. Hihingin ito ng aming staff kapag tumawag ka.")}</p>
-          <Button variant="quiet" size="lg" className="mt-3 w-full sm:w-auto" onClick={copy} icon={<Copy size="1.2rem" weight="bold" />}>
+          <p className="mt-1 text-[1rem] text-ink-2">{t("Keep this number. Our staff will ask for it if you call.", "Itago ang numerong ito. Hihingin ito ng aming staff kapag tumawag ka.")}</p>
+          <Button variant="quiet" size="lg" className={cn("mt-3 w-full sm:w-auto", WRAP_BTN)} onClick={copy} icon={<Copy size="1.2rem" weight="bold" />}>
             {t("Copy the number", "Kopyahin ang numero")}
           </Button>
         </div>
@@ -94,7 +95,7 @@ export function SuccessPanel({ title, body, refLabel, refId, next, secondary, he
           ))}
         </ol>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row-reverse sm:justify-start">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row-reverse sm:justify-start [&>*]:h-auto [&>*]:min-h-[var(--btn-h)] [&>*]:whitespace-normal [&>*]:py-2.5">
           <ButtonLink to="/member" size="lg" icon={<House size="1.25rem" weight="bold" />} className="w-full sm:w-auto">
             {t("Back to Home", "Bumalik sa Home")}
           </ButtonLink>
@@ -152,6 +153,18 @@ const TONE_CLS = {
   negative: "bg-negative-soft text-negative",
 } as const;
 
+const ACRONYMS: [RegExp, string, string][] = [
+  [/\bIHB\b(?! \()/, "IHB (illness hospitalization benefit)", "IHB (benepisyo sa pagka-ospital dahil sa sakit)"],
+  [/\bAHB\b(?! \()/, "AHB (accident hospitalization benefit)", "AHB (benepisyo sa pagka-ospital dahil sa aksidente)"],
+  [/\bATD\b(?! \()(?!\))/, "ATD (salary deduction)", "ATD (kaltas sa sahod)"],
+];
+/** Spells out an acronym the first time it appears in a piece of text. */
+export function explainAcronyms(text: string, lang: "en" | "fil") {
+  let out = text;
+  for (const [re, en, fil] of ACRONYMS) out = out.replace(re, lang === "fil" ? fil : en);
+  return out;
+}
+
 /** One notification: tapping marks it read and opens its link. */
 export function NotificationRow({ n, compact }: { n: AppNotification; compact?: boolean }) {
   const t = useT();
@@ -159,8 +172,8 @@ export function NotificationRow({ n, compact }: { n: AppNotification; compact?: 
   const navigate = useNavigate();
   const markRead = useDB((s) => s.markNotificationRead);
   const Icon = TONE_ICON[n.tone];
-  const title = lang === "fil" && n.titleFil ? n.titleFil : n.title;
-  const body = lang === "fil" && n.bodyFil ? n.bodyFil : n.body;
+  const title = explainAcronyms(lang === "fil" && n.titleFil ? n.titleFil : n.title, lang);
+  const body = explainAcronyms(lang === "fil" && n.bodyFil ? n.bodyFil : n.body, lang);
   return (
     <button
       type="button"

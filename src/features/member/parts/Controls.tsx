@@ -66,25 +66,25 @@ export function DeductionMeter({ total, parts, restLabel, caption, className }: 
       </div>
       <ul className="mt-4 space-y-2.5 text-[1rem]">
         {parts.map((p) => (
-          <li key={p.key} className="flex items-start justify-between gap-3">
-            <span className="flex min-w-0 items-start gap-2.5">
-              <span aria-hidden className="mt-[0.3rem] size-3 shrink-0 rounded-[3px]" style={{ background: p.color }} />
-              <span className="min-w-0 text-ink-2">
+          <li key={p.key} className="flex items-start gap-2.5">
+            <span aria-hidden className="mt-[0.3rem] size-3 shrink-0 rounded-[3px]" style={{ background: p.color }} />
+            <span className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-3">
+              <span className="min-w-0 flex-1 basis-[9rem] text-ink-2">
                 {p.label}
                 {p.note && <span className="block text-[0.9375rem] text-ink-2">{p.note}</span>}
               </span>
+              <span className="tnum shrink-0 font-semibold text-ink">{peso(p.value)}</span>
             </span>
-            <span className="tnum shrink-0 font-semibold text-ink">{peso(p.value)}</span>
           </li>
         ))}
         {restLabel && (
-        <li className="flex items-start justify-between gap-3">
-          <span className="flex items-start gap-2.5">
+          <li className="flex items-start gap-2.5">
             <span aria-hidden className="mt-[0.3rem] size-3 shrink-0 rounded-[3px] bg-[var(--chart-track)] shadow-[inset_0_0_0_1px_var(--line-strong)]" />
-            <span className="text-ink-2">{restLabel}</span>
-          </span>
-          <span className="tnum shrink-0 font-semibold text-ink">{peso(rest)}</span>
-        </li>
+            <span className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-3">
+              <span className="min-w-0 flex-1 basis-[9rem] text-ink-2">{restLabel}</span>
+              <span className="tnum shrink-0 font-semibold text-ink">{peso(rest)}</span>
+            </span>
+          </li>
         )}
       </ul>
     </figure>

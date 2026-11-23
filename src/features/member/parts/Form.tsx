@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { useT } from "@/lib/i18n";
 import { SPRING } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
+import { WRAP_BTN } from "./Page";
 import type { PickedFile } from "@/components/ui/FileDrop";
 
 /*
@@ -34,7 +35,7 @@ export function MField({
       </label>
       {children({ id, describedBy: [hintId, errId].filter(Boolean).join(" ") || undefined, invalid: !!error })}
       {hint && !error && (
-        <p id={hintId} className="text-[0.9375rem] leading-snug text-ink-2">
+        <p id={hintId} className="text-[1rem] leading-snug text-ink-2">
           {hint}
         </p>
       )}
@@ -45,7 +46,7 @@ export function MField({
 
 export function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
-    <p id={id} role="alert" className="flex items-start gap-2 text-[0.9375rem] font-semibold leading-snug text-negative">
+    <p id={id} role="alert" className="flex items-start gap-2 text-[1rem] font-semibold leading-snug text-negative">
       <WarningCircle size="1.25rem" weight="fill" className="mt-px shrink-0" aria-hidden />
       <span>{children}</span>
     </p>
@@ -59,13 +60,13 @@ export function GroupLabel({ id, children, hint }: { id?: string; children: Reac
       <p id={id} className="text-[1rem] font-semibold leading-snug text-ink">
         {children}
       </p>
-      {hint && <p className="mt-1 text-[0.9375rem] leading-snug text-ink-2">{hint}</p>}
+      {hint && <p className="mt-1 text-[1rem] leading-snug text-ink-2">{hint}</p>}
     </div>
   );
 }
 
 /** Larger text for RadioCards descriptions and asides (the shared card sets them small). */
-export const CardNote = ({ children }: { children: React.ReactNode }) => <span className="mt-1 block text-[0.9375rem] leading-snug text-ink-2">{children}</span>;
+export const CardNote = ({ children }: { children: React.ReactNode }) => <span className="mt-1 block text-[1rem] leading-snug text-ink-2">{children}</span>;
 
 /** Segmented choice with 3rem targets and a sliding indicator. */
 export function BigSegmented<T extends string>({ value, onValueChange, options, ariaLabel, className }: { value: T; onValueChange: (v: T) => void; options: { value: T; label: React.ReactNode }[]; ariaLabel: string; className?: string }) {
@@ -173,7 +174,7 @@ export function DocUpload({ label, hint, files, onChange, multiple = true, inval
       </div>
 
       {files.length > 0 && (
-        <ul className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,8.5rem),1fr))] gap-2.5">
+        <ul className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,7rem),1fr))] gap-2.5">
           {files.map((f) => (
             <li key={f.id} className="overflow-hidden rounded-md bg-sunken">
               {f.preview ? (
@@ -203,7 +204,7 @@ export function DocUpload({ label, hint, files, onChange, multiple = true, inval
         </ul>
       )}
 
-      <Button variant="tonal" size="lg" block className="mt-4" onClick={() => input.current?.click()} aria-describedby={labelId} icon={<Camera size="1.35rem" weight="bold" />}>
+      <Button variant="tonal" size="lg" block className={cn("mt-4", WRAP_BTN)} onClick={() => input.current?.click()} aria-describedby={labelId} icon={<Camera size="1.35rem" weight="bold" />}>
         {done ? t("Add another photo", "Magdagdag pa ng litrato") : t("Add a photo or file", "Magdagdag ng litrato o file")}
       </Button>
       <input

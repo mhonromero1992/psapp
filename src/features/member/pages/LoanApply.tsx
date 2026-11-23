@@ -21,7 +21,7 @@ import { FlowNav, FlowProgress } from "../parts/Flow";
 import { CardNote, FieldError, GroupLabel, MField } from "../parts/Form";
 import { HelpLink } from "../parts/Help";
 import { eligibilityFor, firstDeduction, maxFor, stepFor } from "../parts/loans";
-import { LoadError, PageHead, PageSkeleton } from "../parts/Page";
+import { LoadError, PageHead, PageSkeleton, WRAP_BTN } from "../parts/Page";
 import { monthYear, nowMs } from "../parts/text";
 
 type Errors = Partial<Record<"product" | "amount" | "term" | "purpose" | "calamity" | "account" | "consent", string>>;
@@ -435,10 +435,10 @@ export default function LoanApply() {
         title={t("Confirm your loan", "Kumpirmahin ang iyong loan")}
         footer={
           <>
-            <Button variant="quiet" size="lg" onClick={() => setConfirmOpen(false)} disabled={busy}>
+            <Button variant="quiet" size="lg" className={WRAP_BTN} onClick={() => setConfirmOpen(false)} disabled={busy}>
               {t("Cancel", "Kanselahin")}
             </Button>
-            <Button size="lg" onClick={submit} loading={busy} loadingLabel={t("Sending", "Ipinapadala")}>
+            <Button size="lg" className={WRAP_BTN} onClick={submit} loading={busy} loadingLabel={t("Sending", "Ipinapadala")}>
               {t("Confirm and send", "Kumpirmahin at ipadala")}
             </Button>
           </>
@@ -465,7 +465,7 @@ export default function LoanApply() {
                 />
               </div>
               {pinError && <div className="mt-2"><FieldError>{pinError}</FieldError></div>}
-              <p id="pin-help" className="mt-2 text-[0.9375rem] text-ink-2">{t("This is a sample. Any 6 digits work, for example 123456.", "Sample lang ito. Kahit anong 6 na numero ay puwede, halimbawa 123456.")}</p>
+              <p id="pin-help" className="mt-2 text-[1rem] text-ink-2">{t("This is a sample. Any 6 digits work, for example 123456.", "Sample lang ito. Kahit anong 6 na numero ay puwede, halimbawa 123456.")}</p>
             </div>
           </div>
         )}

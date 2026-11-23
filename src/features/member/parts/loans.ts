@@ -52,17 +52,16 @@ export function scheduleFor(l: Loan, processingDays: number): ScheduleRow[] {
   const paid = paidCount(l);
   const first = firstDeduction(l, processingDays);
   const rows: ScheduleRow[] = [];
-  let bal = l.principal;
+  // Balance after payment k = present value of the payments still to come, the same
+  // rule the loan record uses, so the schedule and "Left to pay" always agree.
+  const pv = (remaining: number) => (remaining <= 0 ? 0 : i === 0 ? l.monthly * remaining : (l.monthly * (1 - Math.pow(1 + i, -remaining))) / i);
+  let before = l.principal;
   for (let k = 1; k <= l.termMonths; k++) {
-    const interest = round2(bal * i);
-    let payment = l.monthly;
-    let principal = round2(payment - interest);
-    if (k === l.termMonths || principal > bal) {
-      principal = round2(bal);
-      payment = round2(principal + interest);
-    }
-    bal = Math.max(0, round2(bal - principal));
-    rows.push({ no: k, period: addMonths(first, k - 1), payment, interest, principal, balance: bal, state: k <= paid ? "paid" : k === paid + 1 && l.status === "released" ? "next" : "due" });
+    const after = k === l.termMonths ? 0 : round2(pv(l.termMonths - k));
+    const principal = round2(before - after);
+    const interest = Math.max(0, round2(l.monthly - principal));
+    rows.push({ no: k, period: addMonths(first, k - 1), payment: round2(principal + interest), interest, principal, balance: after, state: k <= paid ? "paid" : k === paid + 1 && l.status === "released" ? "next" : "due" });
+    before = after;
   }
   return rows;
 }
@@ -92,7 +91,7 @@ export function eligibilityFor(p: LoanProduct, m: Member, months: number, loans:
   if (months < need) return { ok: false, tone: "negative", en: `Needs ${need} monthly contributions. You have ${months}.`, fil: `Kailangan ng ${need} buwanang kontribusyon. Mayroon kang ${months}.` };
   if (pending) return { ok: true, tone: "caution", en: `Your application ${pending.id} is still in progress`, fil: `Pinoproseso pa ang iyong application ${pending.id}` };
   if (active) return { ok: true, tone: "caution", en: `You have an active ${p.name}. Its balance counts toward your take-home limit.`, fil: `May aktibo kang ${p.name}. Kasama ang balanse nito sa limit ng iyong take-home pay.` };
-  if (p.id === "POL") return { ok: true, tone: "positive", en: `You qualify: ${months} months of MEP contributions`, fil: `Pasok ka: ${months} buwan ng MEP contributions` };
+  if (p.id === "POL") return { ok: true, tone: "positive", en: `You qualify: ${months} months of contributions`, fil: `Pasok ka: ${months} buwan ng kontribusyon` };
   return {
     ok: true,
     tone: "positive",

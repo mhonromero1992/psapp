@@ -1,6 +1,6 @@
 import type { Lang } from "@/lib/i18n";
 import { TODAY, date } from "@/lib/format";
-import type { AssistRequest, ClaimType, Payout, PayoutStatus, TimelineEvent } from "@/data/types";
+import type { AssistRequest, ClaimType, TimelineEvent } from "@/data/types";
 import type { Tone } from "@/components/ui/Badge";
 
 /* Bilingual helpers for the Member App. Reference data ships in English; the
@@ -11,10 +11,6 @@ export type TFn = (en: string, fil?: string) => string;
 const MONTHS: Record<Lang, string[]> = {
   en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   fil: ["Enero", "Pebrero", "Marso", "Abril", "Mayo", "Hunyo", "Hulyo", "Agosto", "Setyembre", "Oktubre", "Nobyembre", "Disyembre"],
-};
-const MONTHS_SHORT: Record<Lang, string[]> = {
-  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  fil: ["Ene", "Peb", "Mar", "Abr", "May", "Hun", "Hul", "Ago", "Set", "Okt", "Nob", "Dis"],
 };
 
 /** "2026-12" plus n months. */
@@ -34,11 +30,6 @@ export function periodOf(iso: string) {
 export function monthYear(period: string, lang: Lang) {
   const [y, m] = period.split("-").map(Number);
   return `${MONTHS[lang][m - 1]} ${y}`;
-}
-/** "Dec 2026" / "Dis 2026" */
-export function monthYearShort(period: string, lang: Lang) {
-  const [y, m] = period.split("-").map(Number);
-  return `${MONTHS_SHORT[lang][m - 1]} ${y}`;
 }
 
 /** The prototype clock: never earlier than the sample data's "today". */
@@ -113,11 +104,16 @@ export const BENEFIT_FIL: Record<ClaimType, { description: string; schedule: str
   AHB: { description: "Arawang cash para sa bawat araw na naka-confine ka sa ospital dahil sa aksidente.", schedule: "₱1,000 kada araw, hanggang 10 araw bawat confinement (sample)" },
   IHB: { description: "Arawang cash para sa bawat araw na naka-confine ka sa ospital dahil sa sakit.", schedule: "₱500 kada araw, hanggang 10 araw bawat confinement (sample)" },
   WIA: { description: "Cash benefit para sa pinsalang natamo habang nasa tungkulin.", schedule: "₱50,000 sa malubhang pinsala, ₱20,000 sa hindi malubha (sample)" },
-  KIA: { description: "Benepisyong ibinibigay sa mga beneficiary kapag nasawi ang miyembro habang nasa tungkulin.", schedule: "Depende sa ranggo at MEP coverage (sample)" },
+  KIA: { description: "Benepisyong ibinibigay sa mga beneficiary kapag nasawi ang miyembro habang nasa tungkulin.", schedule: "Depende sa ranggo at sa iyong MEP (Members Equity Plan) coverage (sample)" },
   DEATH: { description: "Life insurance na ibinibigay sa mga beneficiary sa pagkamatay dahil sa anumang dahilan.", schedule: "Ayon sa MEP coverage (sample)" },
   DISABILITY: { description: "Benepisyo para sa permanenteng kapansanan dahil sa aksidente.", schedule: "Ayon sa MEP schedule of disablement (sample)" },
   DFI: { description: "Life cover para sa iyong itinalagang dependent habang maayos ang iyong MEP membership.", schedule: "₱50,000 (ayon sa membership form)" },
   MER: { description: "Refund para sa mga miyembro mula sa net income ng pondo noong nakaraang taon.", schedule: "Idinedeklara taun-taon ng Board (sample)" },
+};
+
+/** Display fixes for reference text that still mentions back-office screens or unexplained acronyms. */
+export const BENEFIT_SCHEDULE_EN: Partial<Record<ClaimType, string>> = {
+  KIA: "Depends on rank and your MEP (Members Equity Plan) coverage (sample)",
 };
 
 const DOC_FIL: Record<string, string> = {
@@ -145,24 +141,6 @@ export function docName(name: string, lang: Lang) {
   return DOC_FIL[name] ?? name;
 }
 
-/* ── Loan products ─────────────────────────────────────────── */
-const PRODUCT_LINE_FIL: Record<string, string> = {
-  "Active member with ATD on file": "Aktibong miyembro na may ATD on file",
-  "At least 12 monthly contributions": "Hindi bababa sa 12 buwanang kontribusyon",
-  "Net take-home pay stays within agency limits": "Pasok pa rin sa limit ng ahensya ang net take-home pay",
-  "Active member": "Aktibong miyembro",
-  "At least 6 monthly contributions": "Hindi bababa sa 6 na buwanang kontribusyon",
-  "Resides or assigned in a declared calamity area": "Nakatira o naka-assign sa lugar na may deklaradong kalamidad",
-  "Apply within 30 days of the declaration": "Mag-apply sa loob ng 30 araw mula sa deklarasyon",
-  "At least 12 months of MEP contributions": "Hindi bababa sa 12 buwan ng MEP contributions",
-  "No unpaid Policy Loan": "Walang hindi pa bayad na Policy Loan",
-  "Latest payslip": "Pinakabagong payslip",
-  "Valid government ID": "Valid government ID",
-  "Signed promissory note (e-signed in app)": "Pinirmahang promissory note (e-sign sa app)",
-  "Proof of emergency (medical abstract or similar)": "Patunay ng emergency (medical abstract o katulad)",
-  "Certificate of residence or assignment": "Certificate of residence o assignment",
-};
-export const productLine = (line: string, lang: Lang) => (lang === "fil" ? PRODUCT_LINE_FIL[line] ?? line : line);
 
 /* ── Coverage ──────────────────────────────────────────────── */
 const COVERAGE_DETAIL_FIL: Record<string, string> = {
@@ -175,22 +153,6 @@ const COVERAGE_DETAIL_FIL: Record<string, string> = {
   dfi: "Para sa iyong itinalagang dependent",
 };
 export const coverageDetail = (id: string, detail: string, lang: Lang) => (lang === "fil" ? COVERAGE_DETAIL_FIL[id] ?? detail : detail);
-
-/* ── Payouts ───────────────────────────────────────────────── */
-export const PAYOUT_FIL: Record<PayoutStatus, string> = {
-  queued: "Nakapila",
-  for_approval: "Para sa approval",
-  approved: "Aprubado",
-  sent: "Naipadala",
-  settled: "Pumasok na",
-  failed: "Hindi natuloy",
-};
-export const PAYOUT_KIND_FIL: Record<Payout["kind"], string> = {
-  "Loan proceeds": "Pera mula sa loan",
-  "Claim benefit": "Benepisyo mula sa claim",
-  Refund: "Refund",
-  "Experience refund": "Experience refund",
-};
 
 /* ── Legal & Travel Assistance ─────────────────────────────── */
 export const ASSIST_STATUS: Record<AssistRequest["status"], { en: string; fil: string; tone: Tone }> = {
