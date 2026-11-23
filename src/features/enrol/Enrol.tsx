@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, IdentificationCard, Plus, ShieldChe
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useT } from "@/lib/i18n";
+import { usePrefs } from "@/store/prefs";
 import { EASE_OUT } from "@/lib/motion";
 import { peso } from "@/lib/format";
 import { Lockup } from "@/components/brand/Emblem";
@@ -50,6 +51,7 @@ export default function Enrol() {
 
 function EnrolFlow() {
   const t = useT();
+  const textSize = usePrefs((s) => s.textSize);
   const reduced = useReducedMotion();
   const [params] = useSearchParams();
   const submitEnrolment = useDB((s) => s.submitEnrolment);
@@ -185,7 +187,7 @@ function EnrolFlow() {
           <ButtonLink to="/" variant="ghost" size="sm" icon={<X size={18} weight="bold" />} className="-ml-2">
             {t("Cancel", "Kanselahin")}
           </ButtonLink>
-          <Lockup compact />
+          <Lockup compact wordmark={textSize === "standard"} />
           <LangToggle />
         </div>
       </header>

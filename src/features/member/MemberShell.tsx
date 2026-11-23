@@ -68,6 +68,7 @@ function HelpButton({ className }: { className?: string }) {
 
 function MemberShellInner() {
   const t = useT();
+  const textSize = usePrefs((s) => s.textSize);
   const member = useCurrentMember();
   const notes = useNotificationsFor("member", member.id);
   const unread = notes.filter((n) => !n.read).length;
@@ -104,7 +105,7 @@ function MemberShellInner() {
       <header className="sticky top-0 z-20 bg-bg/85 pt-[var(--safe-top)] backdrop-blur-md lg:ml-[264px] lg:bg-bg/80">
         <div className="mx-auto flex h-[4.25rem] max-w-[1100px] items-center gap-3 px-4 sm:px-6 lg:px-10">
           <div className="lg:hidden">
-            <Lockup to="/member" compact />
+            <Lockup to="/member" compact wordmark={textSize === "standard"} />
           </div>
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <SampleDataBadge className="hidden md:inline-flex" />

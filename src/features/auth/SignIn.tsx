@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle, Fingerprint, Info, Key } from "@phosphor-icons/
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useT } from "@/lib/i18n";
+import { usePrefs } from "@/store/prefs";
 import { EASE_OUT } from "@/lib/motion";
 import { Lockup } from "@/components/brand/Emblem";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -28,6 +29,7 @@ function matchesMember(v: string) {
 
 export default function SignIn() {
   const t = useT();
+  const textSize = usePrefs((s) => s.textSize);
   const navigate = useNavigate();
   const wipe = useBladeNavigate();
   const [params] = useSearchParams();
@@ -85,7 +87,7 @@ export default function SignIn() {
           {t("Back", "Bumalik")}
         </ButtonLink>
         <div className="lg:hidden">
-          <Lockup compact />
+          <Lockup compact wordmark={textSize === "standard"} />
         </div>
         <LangToggle />
       </div>

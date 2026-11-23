@@ -3,6 +3,7 @@ import { Navigate, useLocation, useSearchParams } from "react-router";
 import { ArrowLeft, ChatCircleText, ShieldCheck } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
+import { usePrefs } from "@/store/prefs";
 import { Lockup } from "@/components/brand/Emblem";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { OtpInput } from "@/components/ui/OtpInput";
@@ -15,6 +16,7 @@ import { SAMPLE_OTP } from "./SignIn";
 /** One-time code by SMS. No countdown pressure: a new code can be requested after 30 seconds. */
 export default function Verify() {
   const t = useT();
+  const textSize = usePrefs((s) => s.textSize);
   const wipe = useBladeNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -54,7 +56,7 @@ export default function Verify() {
           {t("Back", "Bumalik")}
         </ButtonLink>
         <div className="lg:hidden">
-          <Lockup compact />
+          <Lockup compact wordmark={textSize === "standard"} />
         </div>
         <LangToggle />
       </div>

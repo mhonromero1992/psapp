@@ -10,17 +10,10 @@ export default defineConfig({
   },
   build: {
     target: "es2022",
-    chunkSizeWarningLimit: 900,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules/three") || id.includes("@react-three")) return "three";
-          if (id.includes("node_modules/motion") || id.includes("framer-motion")) return "motion";
-          if (id.includes("@phosphor-icons")) return "icons";
-          if (id.includes("radix-ui") || id.includes("@radix-ui")) return "radix";
-        },
-      },
-    },
+    // three.js (~950 kB) sits in the lazy MedalScene chunk: it loads only for the live
+    // medal on wide screens, so phones never fetch it. No manual chunks: a manual "three"
+    // chunk once captured React's JSX runtime and made every screen import it.
+    chunkSizeWarningLimit: 1000,
   },
   server: { host: "127.0.0.1", port: 5173 },
   preview: { host: "127.0.0.1", port: 4173 },

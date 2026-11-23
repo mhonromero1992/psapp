@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, IdentificationCard, SignIn as SignInIcon } from "@phosphor-icons/react";
 import { useT } from "@/lib/i18n";
+import { usePrefs } from "@/store/prefs";
 import { EASE_OUT } from "@/lib/motion";
 import { Lockup } from "@/components/brand/Emblem";
 import { RibbonLabel } from "@/components/brand/Ribbon";
@@ -16,6 +17,7 @@ import { MedalStage } from "./AuthLayout";
  */
 export default function Welcome() {
   const t = useT();
+  const textSize = usePrefs((s) => s.textSize);
   const reduced = useReducedMotion();
   const rise = (delay: number) => ({ initial: reduced ? false : { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.52, ease: EASE_OUT, delay } }) as const;
 
@@ -23,10 +25,10 @@ export default function Welcome() {
     <div className="mx-auto flex w-full max-w-[560px] flex-1 flex-col px-5 pb-[calc(1.5rem+var(--safe-bottom))] pt-[calc(var(--safe-top)+0.75rem)] sm:px-8 lg:justify-center lg:py-12">
       <div className="flex min-h-14 items-center justify-between gap-3">
         <div className="lg:hidden">
-          <Lockup compact />
+          <Lockup compact wordmark={textSize === "standard"} />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[0.85rem] font-semibold text-ink-2">{t("Language", "Wika")}</span>
+          <span className="hidden text-[0.85rem] font-semibold text-ink-2 sm:inline">{t("Language", "Wika")}</span>
           <LangToggle />
         </div>
       </div>
