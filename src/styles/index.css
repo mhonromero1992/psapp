@@ -1,0 +1,532 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   PS-ACCESS design system
+   Brand source: the PSMBFI emblem (green #009444, blue #1054A4,
+   red #EC1C24, dark cloisonné outline). See DESIGN.md.
+   ───────────────────────────────────────────────────────────── */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-display: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Public Sans Variable", "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Raw brand hues: artwork, fills, charts. Text on them uses the deeper steps. */
+  --color-psm-blue: #1054a4;
+  --color-psm-green: #009444;
+  --color-psm-red: #ec1c24;
+
+  --color-blue-50: #eef4fc;
+  --color-blue-100: #d9e6f8;
+  --color-blue-200: #b3cdf0;
+  --color-blue-300: #7fa9e2;
+  --color-blue-400: #4a82d0;
+  --color-blue-500: #2066be;
+  --color-blue-600: #1054a4;
+  --color-blue-700: #0d4486;
+  --color-blue-800: #0b3569;
+  --color-blue-900: #0a2a52;
+  --color-blue-950: #071b37;
+  --color-night: #050f22;
+
+  --color-green-50: #e8f7ee;
+  --color-green-100: #c9edd7;
+  --color-green-300: #6ccb95;
+  --color-green-500: #00a64c;
+  --color-green-600: #009444;
+  --color-green-700: #007a38;
+  --color-green-800: #006b31;
+  --color-green-900: #064a25;
+
+  --color-red-50: #fdecec;
+  --color-red-100: #fbd3d4;
+  --color-red-300: #f47c80;
+  --color-red-500: #f0383f;
+  --color-red-600: #ec1c24;
+  --color-red-700: #c4141b;
+  --color-red-800: #9b1015;
+
+  --color-amber-50: #fef3e0;
+  --color-amber-400: #f5b544;
+  --color-amber-700: #9a4a00;
+
+  --color-slate-50: #f3f5f9;
+  --color-slate-100: #e9edf3;
+  --color-slate-200: #d9dfe8;
+  --color-slate-300: #b9c2d0;
+  --color-slate-400: #8c98ab;
+  --color-slate-500: #5e6b80;
+  --color-slate-600: #4b5a72;
+  --color-slate-700: #33425a;
+  --color-slate-800: #1e2b40;
+  --color-slate-900: #0a1628;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.35;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+
+  --breakpoint-xs: 26rem;
+}
+
+/* Semantic tokens: utilities read these, so the theme switch is one attribute. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-caution: var(--caution);
+  --color-caution-soft: var(--caution-soft);
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f3f5f9;
+  --bg-deep: #e9edf3;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --sunken: #eef1f6;
+  --ink: #0a1628;
+  --ink-2: #4b5a72;
+  --ink-3: #5e6b80;
+  --line: rgb(10 22 40 / 0.08);
+  --line-strong: rgb(10 22 40 / 0.14);
+  --primary: #1054a4;
+  --primary-strong: #0d4486;
+  --primary-soft: #eef4fc;
+  --primary-ink: #ffffff;
+  --positive: #007a38;
+  --positive-soft: #e8f7ee;
+  --negative: #c4141b;
+  --negative-soft: #fdecec;
+  --caution: #9a4a00;
+  --caution-soft: #fef3e0;
+  --halo: rgb(16 84 164 / 0.78);
+
+  /* Elevation: canvas < card (e1) < popover (e2) < dialog/device (e3). Navy-tinted. */
+  --e1: 0 1px 2px rgb(7 27 55 / 0.06), 0 1px 1px rgb(7 27 55 / 0.03);
+  --e2: 0 2px 4px rgb(7 27 55 / 0.05), 0 12px 28px -8px rgb(7 27 55 / 0.14);
+  --e3: 0 30px 70px -18px rgb(7 27 55 / 0.32), 0 10px 24px -10px rgb(7 27 55 / 0.16);
+
+  --glass-bg: rgb(255 255 255 / 0.62);
+  --glass-edge: rgb(255 255 255 / 0.7);
+  --glass-rim: rgb(255 255 255 / 0.38);
+
+  /* Charts (validated: dataviz validate_palette.js, light on #fff) */
+  --chart-1: #1054a4;
+  --chart-2: #009444;
+  --chart-ref: #b9c2d0;
+  --chart-track: #e4e9f1;
+  --chart-grid: rgb(10 22 40 / 0.07);
+  --chart-hover: rgb(16 84 164 / 0.06);
+
+  --wrap: 1240px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #061024;
+  --bg-deep: #040b1a;
+  --surface: #0c1830;
+  --surface-2: #101f3b;
+  --sunken: #08132a;
+  --ink: #eaf0f8;
+  --ink-2: #a9b6ca;
+  --ink-3: #8593aa;
+  --line: rgb(234 240 248 / 0.08);
+  --line-strong: rgb(234 240 248 / 0.15);
+  --primary: #6ea4ec;
+  --primary-strong: #2563be;
+  --primary-soft: rgb(110 164 236 / 0.12);
+  --primary-ink: #ffffff;
+  --positive: #3ccb7f;
+  --positive-soft: rgb(60 203 127 / 0.12);
+  --negative: #ff6b70;
+  --negative-soft: rgb(255 107 112 / 0.12);
+  --caution: #f5b544;
+  --caution-soft: rgb(245 181 68 / 0.12);
+  --halo: rgb(110 164 236 / 0.85);
+
+  --e1: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(234 240 248 / 0.04);
+  --e2: 0 2px 6px rgb(0 0 0 / 0.35), 0 14px 32px -10px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(234 240 248 / 0.05);
+  --e3: 0 30px 80px -18px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(234 240 248 / 0.06);
+
+  --chart-1: #4a82d0;
+  --chart-2: #1fa35f;
+  --chart-ref: #4b5a72;
+  --chart-track: #1a2a48;
+  --chart-grid: rgb(234 240 248 / 0.07);
+  --chart-hover: rgb(110 164 236 / 0.08);
+
+  --glass-bg: rgb(12 24 48 / 0.6);
+  --glass-edge: rgb(255 255 255 / 0.1);
+  --glass-rim: rgb(255 255 255 / 0.06);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-padding-top: 6rem;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    overflow-x: clip;
+    min-height: 100dvh;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-stretch: 88%;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  ::selection { background: rgb(16 84 164 / 0.22); }
+  [data-theme="dark"] ::selection { background: rgb(110 164 236 / 0.35); }
+
+  /* R-39: every enabled control shows a pointer; disabled shows not-allowed. */
+  a[href], button:not(:disabled), summary, select, label[for], [role="button"], [role="tab"],
+  [role="switch"], [role="option"], [role="menuitem"], [role="checkbox"], [role="radio"],
+  input[type="checkbox"], input[type="radio"], input[type="range"] { cursor: pointer; }
+  button:disabled, [aria-disabled="true"], input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; }
+
+  /* Focus: a soft double halo, never removed. */
+  :focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 5px var(--halo);
+    border-radius: var(--radius-xs);
+  }
+  input:focus-visible, textarea:focus-visible, select:focus-visible { border-radius: inherit; }
+
+  img, svg, video, canvas { display: block; max-width: 100%; }
+  img, video { height: auto; }
+  button { font: inherit; color: inherit; }
+  table { font-variant-numeric: tabular-nums; }
+}
+
+/* ── Type helpers ─────────────────────────────────────────── */
+@utility font-display-tight { font-family: var(--font-display); font-stretch: 80%; letter-spacing: -0.02em; }
+@utility font-display-wide { font-family: var(--font-display); font-stretch: 112%; letter-spacing: -0.01em; }
+@utility tnum { font-variant-numeric: tabular-nums; }
+@utility text-display-xl { font-size: clamp(2.55rem, 1.1rem + 4.1vw, 4.85rem); line-height: 0.98; }
+@utility text-display-l { font-size: clamp(2.15rem, 1.1rem + 3.1vw, 4.25rem); line-height: 1; }
+@utility text-display-m { font-size: clamp(1.7rem, 1.15rem + 1.6vw, 2.75rem); line-height: 1.05; }
+@utility wrap { width: 100%; max-width: calc(var(--wrap) + var(--gutter) * 2); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* ── Material: liquid glass. Dose cap: at most two per view (DESIGN.md). ── */
+@utility glass {
+  position: relative;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px var(--glass-rim), var(--e2);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--surface); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+@layer components {
+/* Light that follows the pointer across a surface (set --mx/--my from JS). */
+.sheen { position: relative; isolation: isolate; }
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.35), transparent 62%);
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out-quint);
+  z-index: 1;
+}
+.sheen:hover::after { opacity: 1; }
+[data-theme="dark"] .sheen::after { background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.08), transparent 62%); }
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  --btn-h: 2.75rem;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  height: var(--btn-h);
+  padding-inline: 1.15rem;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  overflow: hidden;
+  transition:
+    background-color 220ms var(--ease-out-quint),
+    color 220ms var(--ease-out-quint),
+    box-shadow 260ms var(--ease-out-quint),
+    transform 140ms var(--ease-out-quint),
+    filter 220ms var(--ease-out-quint);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1;
+  background: radial-gradient(160px circle at var(--mx, 50%) var(--my, 50%), var(--btn-light, rgb(255 255 255 / 0.3)), transparent 70%);
+  transition: opacity 260ms var(--ease-out-quint);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled):not([aria-disabled="true"])::after { opacity: 1; }
+}
+.btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(0.982); transition-duration: 90ms; }
+.btn:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 5px var(--halo), var(--btn-shadow, 0 0 #0000); transition-property: background-color, color, transform, filter; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; filter: saturate(0.4); }
+.btn > svg { flex: none; }
+
+.btn-sm { --btn-h: 2.5rem; padding-inline: 0.9rem; font-size: 0.9rem; border-radius: 11px; gap: 0.4rem; }
+.btn-lg { --btn-h: 3.25rem; padding-inline: 1.5rem; font-size: 1rem; border-radius: 14px; }
+@media (pointer: coarse) { .btn-sm { --btn-h: 2.75rem; } }
+.btn-block { width: 100%; }
+.btn-icon { padding-inline: 0; width: var(--btn-h); }
+
+.btn-primary {
+  --btn-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 1px 2px rgb(7 27 55 / 0.22), 0 8px 18px -8px rgb(16 84 164 / 0.7);
+  color: #fff;
+  background-color: #1054a4;
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0) 55%);
+  box-shadow: var(--btn-shadow);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #0e4b95;
+  --btn-shadow: inset 0 1px 0 rgb(255 255 255 / 0.26), 0 1px 2px rgb(7 27 55 / 0.25), 0 12px 26px -10px rgb(16 84 164 / 0.85);
+}
+[data-theme="dark"] .btn-primary { background-color: #2563be; }
+[data-theme="dark"] .btn-primary:hover:not(:disabled) { background-color: #2a6dcf; }
+
+.btn-positive {
+  --btn-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 1px 2px rgb(0 60 30 / 0.25), 0 8px 18px -8px rgb(0 122 56 / 0.6);
+  color: #fff;
+  background-color: #007a38;
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0) 55%);
+  box-shadow: var(--btn-shadow);
+}
+.btn-positive:hover:not(:disabled) { background-color: #006e32; }
+
+.btn-negative {
+  --btn-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 1px 2px rgb(90 0 0 / 0.25), 0 8px 18px -8px rgb(196 20 27 / 0.55);
+  color: #fff;
+  background-color: #c4141b;
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0) 55%);
+  box-shadow: var(--btn-shadow);
+}
+.btn-negative:hover:not(:disabled) { background-color: #b01218; }
+
+.btn-tonal {
+  --btn-light: rgb(16 84 164 / 0.14);
+  color: var(--primary);
+  background-color: var(--primary-soft);
+  box-shadow: inset 0 0 0 1px rgb(16 84 164 / 0.08);
+}
+.btn-tonal:hover:not(:disabled) { background-color: color-mix(in oklab, var(--primary-soft) 70%, var(--primary) 12%); }
+[data-theme="dark"] .btn-tonal { --btn-light: rgb(110 164 236 / 0.18); box-shadow: inset 0 0 0 1px rgb(110 164 236 / 0.16); }
+
+.btn-quiet {
+  --btn-light: rgb(10 22 40 / 0.06);
+  color: var(--ink);
+  background-color: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line-strong), var(--e1);
+}
+.btn-quiet:hover:not(:disabled) { background-color: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-strong), var(--e2); }
+[data-theme="dark"] .btn-quiet { --btn-light: rgb(255 255 255 / 0.06); }
+
+.btn-ghost {
+  --btn-light: rgb(10 22 40 / 0.05);
+  color: var(--ink-2);
+  background-color: transparent;
+}
+.btn-ghost:hover:not(:disabled) { color: var(--ink); background-color: rgb(10 22 40 / 0.045); }
+[data-theme="dark"] .btn-ghost { --btn-light: rgb(255 255 255 / 0.05); }
+[data-theme="dark"] .btn-ghost:hover:not(:disabled) { background-color: rgb(255 255 255 / 0.06); }
+
+/* On the night grounds (hero band, footer). */
+.btn-light {
+  --btn-light: rgb(16 84 164 / 0.16);
+  --btn-shadow: inset 0 -1px 0 rgb(7 27 55 / 0.12), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  color: #071b37;
+  background-color: #ffffff;
+  box-shadow: var(--btn-shadow);
+}
+.btn-light:hover:not(:disabled) { background-color: #eef4fc; }
+.btn-light:focus-visible { box-shadow: 0 0 0 2px #050f22, 0 0 0 5px rgb(255 255 255 / 0.6); }
+
+.btn-glass {
+  --btn-light: rgb(255 255 255 / 0.18);
+  color: #fff;
+  background-color: rgb(255 255 255 / 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+.btn-glass:hover:not(:disabled) { background-color: rgb(255 255 255 / 0.14); }
+.btn-glass:focus-visible { box-shadow: 0 0 0 2px #050f22, 0 0 0 5px rgb(255 255 255 / 0.55); }
+
+/* Loading: the label stays for width, the blade spinner sits on top. */
+.btn[data-loading="true"] { pointer-events: none; }
+.btn[data-loading="true"] > .btn-label { opacity: 0; }
+.btn .btn-spinner { position: absolute; inset: 0; display: grid; place-items: center; }
+
+/* Text link with a drawn underline. */
+.link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 320ms var(--ease-out-quint), color 200ms;
+  padding-bottom: 1px;
+}
+.link:hover { background-size: 100% 1.5px; }
+
+/* ── Form fields ──────────────────────────────────────────── */
+.field-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1rem;
+  box-shadow: inset 0 0 0 1px var(--line-strong), inset 0 1px 2px rgb(7 27 55 / 0.04);
+  transition: box-shadow 200ms var(--ease-out-quint), background-color 200ms;
+}
+.field-input::placeholder { color: var(--ink-3); opacity: 0.85; }
+.field-input:hover:not(:disabled) { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--line-strong) 60%, var(--primary) 40%); }
+.field-input:focus-visible, .field-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--primary), 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent);
+}
+.field-input[aria-invalid="true"] { box-shadow: inset 0 0 0 1.5px var(--negative), 0 0 0 4px color-mix(in oklab, var(--negative) 12%, transparent); }
+.field-input:disabled { background: var(--sunken); color: var(--ink-3); }
+textarea.field-input { min-height: 6rem; resize: vertical; line-height: 1.5; }
+select.field-input { appearance: none; padding-right: 2.25rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235e6b80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.85rem center; }
+
+/* ── Scrollbars (thin, quiet) ─────────────────────────────── */
+.scroll-quiet { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+/* ── Ribbon bar: the service-ribbon motif. Stripes come from inline style. ── */
+.ribbon {
+  display: inline-block;
+  flex: none;
+  width: 30px;
+  height: 10px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* ── Utility bits ─────────────────────────────────────────── */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  transform: translateY(-300%);
+  opacity: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--e3);
+  transition: transform 200ms var(--ease-out-quint), opacity 120ms;
+}
+.skip-link:focus-visible { transform: none; opacity: 1; }
+
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-in { from { opacity: 0; transform: translate(-50%, -47%) scale(0.97); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheet-left { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes sheet-left-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@layer components {
+.skeleton { position: relative; overflow: hidden; background: var(--sunken); border-radius: var(--radius-xs); }
+.skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.5), transparent); animation: shimmer 1.4s infinite; }
+[data-theme="dark"] .skeleton::after { background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.06), transparent); }
+
+}
+
+/* ── Reduced motion: everything rests, nothing stays hidden. ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
