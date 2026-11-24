@@ -1,4 +1,4 @@
-import {useNavigation, type NavigationAction} from '@react-navigation/native';
+import {useNavigation, useRoute, type NavigationAction, type RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AccessibilityInfo, StyleSheet, View, type LayoutChangeEvent, type ScrollView} from 'react-native';
@@ -51,7 +51,9 @@ export default function ClaimNew() {
   };
 
   const [step, setStep] = useState(0);
-  const [type, setType] = useState<ClaimType | ''>('');
+  // Opened from a benefit on the Claims tab: that benefit is already chosen on the first step.
+  const route = useRoute<RouteProp<RootStackParamList, 'ClaimNew'>>();
+  const [type, setType] = useState<ClaimType | ''>(route.params?.type ?? '');
   const [filer, setFiler] = useState('');
   const [incidentDate, setIncidentDate] = useState('');
   const [hospital, setHospital] = useState('');
@@ -81,7 +83,8 @@ export default function ClaimNew() {
   const claimant = filer === 'member' ? {name: memberName(member), relation: 'Member' as const} : ben ? {name: ben.name, relation: ben.relation} : null;
   const account = member.payoutAccounts.find(a => a.id === accountId);
   const accountLabel = account ? `${account.provider} ${maskAccount(account.accountNo)}` : member.payoutAccounts.length ? t('Your primary account', 'Ang iyong primary account') : t('A cheque at your branch', 'Cheke sa iyong sangay');
-  const dirty = Boolean(type || incidentDate || hospital || days || severity || description || Object.values(docs).some(p => p.length) || certify);
+  // A benefit chosen for the member (from the Claims tab) is not an answer of theirs yet.
+  const dirty = Boolean((type && type !== route.params?.type) || incidentDate || hospital || days || severity || description || Object.values(docs).some(p => p.length) || certify);
 
   const STEPS = [t('Type of claim', 'Uri ng claim'), t('Who is filing', 'Sino ang nagfa-file'), t('What happened', 'Ano ang nangyari'), t('Documents', 'Mga dokumento'), t('Where to send', 'Saan ipapadala'), t('Review', 'Suriin')];
   const last = step === STEPS.length - 1;

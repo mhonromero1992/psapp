@@ -194,6 +194,7 @@ function BenefitRow({id, first}: {id: ClaimType; first: boolean}) {
   const t = useT();
   const lang = useLang();
   const {colors} = useTheme();
+  const nav = useNavigation<StackNavigationProp<RootStackParamList>>();
   const b = BENEFIT_BY_ID[id];
   const fil = BENEFIT_FIL[id];
   const short = id !== 'DEATH' && id !== 'DISABILITY';
@@ -215,6 +216,16 @@ function BenefitRow({id, first}: {id: ClaimType; first: boolean}) {
         <Txt variant="bodyStrong" style={styles.schedule}>
           {lang === 'fil' ? fil.schedule : BENEFIT_SCHEDULE_EN[id] ?? b.schedule}
         </Txt>
+        <Button
+          title={t('File this claim', 'I-file ang claim na ito')}
+          icon="plus"
+          variant="secondary"
+          size="md"
+          block={false}
+          onPress={() => nav.navigate('ClaimNew', {type: id})}
+          accessibilityHint={t(`Starts a claim for ${b.name}`, `Magsisimula ng claim para sa ${b.nameFil}`)}
+          style={styles.fileBtn}
+        />
       </View>
     </View>
   );
@@ -235,4 +246,5 @@ const styles = StyleSheet.create({
   row: {flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 14, paddingHorizontal: 16},
   top: {alignItems: 'flex-start'},
   schedule: {marginTop: 4},
+  fileBtn: {marginTop: 10},
 });

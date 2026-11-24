@@ -1,5 +1,5 @@
 import type {NavigatorScreenParams} from '@react-navigation/native';
-import type {LoanProductId} from '../data/types';
+import type {ClaimType, LoanProductId} from '../data/types';
 
 export type TabParamList = {
   Home: undefined;
@@ -17,7 +17,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<TabParamList> | undefined;
   LoanApply: {product?: LoanProductId} | undefined;
   LoanDetail: {id: string};
-  ClaimNew: undefined;
+  ClaimNew: {type?: ClaimType} | undefined;
   ClaimDetail: {id: string};
   Payouts: undefined;
   Assist: undefined;

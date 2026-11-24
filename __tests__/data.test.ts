@@ -1,5 +1,8 @@
 import {loanStatusLabel} from '../src/data/generate';
 import {TODAY} from '../src/lib/format';
+import {LOAN_PRODUCT_BY_ID} from '../src/data/reference';
+import {firstDeduction, paidCount} from '../src/app/shared/loans';
+import {addMonths, periodOf} from '../src/app/shared/text';
 import {useDB} from '../src/store/db';
 import {DEMO_MEMBER} from '../src/store/session';
 
@@ -29,14 +32,22 @@ describe('sample data', () => {
   test("a released loan's date is the day its history shows the release, and its payout agrees", () => {
     for (const l of db().loans.filter(x => x.releasedAt)) {
       const released = l.timeline.find(e => e.label === loanStatusLabel('released'));
-      if (released) expect([l.id, l.releasedAt]).toEqual([l.id, released.at]);
+      if (released) {expect([l.id, l.releasedAt]).toEqual([l.id, released.at]);}
       const payout = db().payouts.find(po => po.refId === l.id && po.kind === 'Loan proceeds');
-      if (payout) expect([l.id, payout.createdAt]).toEqual([l.id, l.releasedAt]);
+      if (payout) {expect([l.id, payout.createdAt]).toEqual([l.id, l.releasedAt]);}
     }
   });
 
   test('account numbers are masked the same way everywhere', () => {
-    for (const l of db().loans) if (l.payoutLabel && !l.payoutLabel.startsWith('Cheque')) expect(l.payoutLabel).toMatch(/ •••• \d{4}$/);
+    for (const l of db().loans) {if (l.payoutLabel && !l.payoutLabel.startsWith('Cheque')) {expect(l.payoutLabel).toMatch(/ •••• \d{4}$/);}}
+  });
+
+  test("the demo member's loan payments are never ahead of the calendar", () => {
+    const now = periodOf(TODAY.toISOString());
+    for (const l of db().loans.filter(x => x.memberId === ME && x.status === 'released')) {
+      const lastPaid = addMonths(firstDeduction(l, LOAN_PRODUCT_BY_ID[l.productId].processingDays), paidCount(l) - 1);
+      expect([l.id, lastPaid <= now]).toEqual([l.id, true]);
+    }
   });
 
   test('no loan or claim history is dated after today', () => {

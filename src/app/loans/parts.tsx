@@ -143,7 +143,7 @@ export function SuccessView({title, body, refLabel, refId, next, secondary, help
           icon="home"
           onPress={() => {
             onHome?.();
-            nav.navigate('Main', {screen: 'Home'});
+            nav.popTo('Main', {screen: 'Home'});
           }}
         />
         {secondary}

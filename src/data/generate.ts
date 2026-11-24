@@ -385,9 +385,10 @@ export function generateLoans(members: Member[]): Loan[] {
     return loan;
   };
 
-  // Demo member story: an active Salary Loan Plus and a fully paid Emergency Loan.
+  // Demo member story: an active Salary Loan Plus and a fully paid Emergency Loan. The Salary Loan
+  // Plus was released in late April, so its seventh payment came off the November payroll.
   const demo = members[0];
-  mk(demo, "SLP", "released", 214, { principal: 180_000, termMonths: 36, monthly: Math.round(amortization(180_000, 0.1, 36) * 100) / 100, purpose: "Tuition and a laptop for Andrea" });
+  mk(demo, "SLP", "released", 222, { principal: 180_000, termMonths: 36, monthly: Math.round(amortization(180_000, 0.1, 36) * 100) / 100, purpose: "Tuition and a laptop for Andrea" });
   const slp = loans[loans.length - 1];
   slp.paidInstallments = 7;
   slp.balance = Math.round(((slp.monthly * (1 - Math.pow(1 + 0.1 / 12, -(36 - 7)))) / (0.1 / 12)) * 100) / 100;

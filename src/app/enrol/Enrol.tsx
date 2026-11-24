@@ -743,7 +743,7 @@ function Success({refNo, name, agency, contribution}: {refNo: string; name: stri
       </View>
       <View style={styles.section}>
         <Button title={t('Back to the start', 'Bumalik sa simula')} icon="home" onPress={() => nav.popToTop()} />
-        <Button title={t('Sign in', 'Mag-sign in')} icon="key" variant="quiet" onPress={() => nav.navigate('SignIn')} />
+        <Button title={t('Sign in', 'Mag-sign in')} icon="key" variant="quiet" onPress={() => nav.replace('SignIn')} />
         <HelpLink topic="Something else" />
       </View>
     </Screen>

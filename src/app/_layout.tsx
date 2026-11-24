@@ -19,7 +19,8 @@ const Stack = createStackNavigator<RootStackParamList>();
 export function openLink(link: string | null | undefined) {
   if (!navigationRef.isReady()) {return;}
   const r = routeForLink(link);
-  (navigationRef.navigate as (name: string, params?: object) => void)(r.name, r.params);
+  // The tabs live in the one Main route at the bottom of the stack: go back to it, never stack a second.
+  (navigationRef.navigate as (name: string, params?: object, options?: {pop?: boolean}) => void)(r.name, r.params, r.name === 'Main' ? {pop: true} : undefined);
 }
 
 /** Signed out: welcome, sign-in, code, enrolment. Signed in: the tabs and every detail screen. */

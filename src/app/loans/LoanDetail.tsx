@@ -67,7 +67,7 @@ export default function LoanDetail() {
               body={t(`There is no loan ${id} on your record. It may have a different reference number.`, `Walang loan na ${id} sa iyong record. Baka iba ang reference number nito.`)}
               action={
                 <>
-                  <Button title={t('Go to my loans', 'Pumunta sa aking mga loan')} icon="loans" onPress={() => nav.navigate('Main', {screen: 'Loans'})} />
+                  <Button title={t('Go to my loans', 'Pumunta sa aking mga loan')} icon="loans" onPress={() => nav.popTo('Main', {screen: 'Loans'})} />
                   <HelpLink topic="Loans" />
                 </>
               }

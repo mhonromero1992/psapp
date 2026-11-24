@@ -11,7 +11,8 @@ import type {RootStackParamList} from '../../navigations/types';
 import {useDB} from '../../store/db';
 import {useClaimsFor, useCoverage, useCurrentMember, useEquity, useLoansFor, useMemberNotifications, useSimulatedLoad} from '../../store/hooks';
 import {openLink} from '../_layout';
-import {claimStage, CLAIM_STAGES, OPEN_CLAIM} from '../shared/claims';
+import {StageBar} from '../claims/parts';
+import {OPEN_CLAIM} from '../shared/claims';
 import {nextDeduction, paidCount, PENDING_LOAN} from '../shared/loans';
 import {RiseIn} from '../shared/RiseIn';
 import {CLAIM_STATUS, LOAN_STATUS} from '../shared/status';
@@ -226,7 +227,6 @@ export default function Home() {
                   </Pressable>
                 ))}
                 {openClaims.map(c => {
-                  const stage = claimStage(c.status);
                   return (
                     <Pressable key={c.id} onPress={() => nav.navigate('ClaimDetail', {id: c.id})} accessibilityRole="button" accessibilityLabel={`${BENEFIT_BY_ID[c.type].name}, ${t(CLAIM_STATUS[c.status].en, CLAIM_STATUS[c.status].fil)}`}>
                       <Card style={styles.gap}>
@@ -235,14 +235,7 @@ export default function Home() {
                           <Txt variant="bodyStrong">{t(BENEFIT_BY_ID[c.type].name, BENEFIT_BY_ID[c.type].nameFil)}</Txt>
                           <Badge tone={CLAIM_STATUS[c.status].tone} label={t(CLAIM_STATUS[c.status].en, CLAIM_STATUS[c.status].fil)} />
                         </View>
-                        <View style={styles.track} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                          {CLAIM_STAGES.map((s, i) => (
-                            <View key={s.key} style={[styles.trackBar, {backgroundColor: i < stage.current ? colors.positive : i === stage.current ? colors.primary : colors.panel2}]} />
-                          ))}
-                        </View>
-                        <Txt variant="smallStrong" color="primary">
-                          {t(`Step ${stage.current + 1} of ${CLAIM_STAGES.length}: ${CLAIM_STAGES[stage.current].en}`, `Hakbang ${stage.current + 1} sa ${CLAIM_STAGES.length}: ${CLAIM_STAGES[stage.current].fil}`)}
-                        </Txt>
+                        <StageBar status={c.status} />
                         <Txt variant="small" color="soft">
                           {c.id} · {money(c.amountClaimed)}
                         </Txt>
@@ -331,8 +324,6 @@ const styles = StyleSheet.create({
   tileIcon: {width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center'},
   rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap'},
   titleRow: {flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1},
-  track: {flexDirection: 'row', gap: 4, marginTop: 4},
-  trackBar: {flex: 1, height: 8, borderRadius: 4},
   note: {flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingHorizontal: 16, paddingVertical: 12},
   dot: {width: 10, height: 10, borderRadius: 5},
 });

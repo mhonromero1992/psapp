@@ -31,7 +31,7 @@ const tick = (v: number) => (v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1).repl
  * axis labels ("Oct ’26"); `readoutLabels`, when given, are the full ones for the readout.
  */
 export function AreaChart({labels, readoutLabels, series, format, caption, height = 210}: {labels: string[]; readoutLabels?: string[]; series: ChartSeries[]; format: (v: number) => string; caption: string; height?: number}) {
-  const {colors, scale} = useTheme();
+  const {colors, scale, fonts} = useTheme();
   const fontSize = Math.round(12 * Math.min(scale, 1.15));
   const [width, setWidth] = useState(0);
   const [idx, setIdx] = useState<number | null>(null);
@@ -96,19 +96,19 @@ export function AreaChart({labels, readoutLabels, series, format, caption, heigh
             {ticks.map(tv => (
               <React.Fragment key={tv}>
                 <Line x1={pad.l} x2={pad.l + w} y1={y(tv)} y2={y(tv)} stroke={colors.chartGrid} strokeWidth={1} />
-                <SvgText x={pad.l - 8} y={y(tv) + 4} fontSize={fontSize} fill={colors.textMuted} textAnchor="end">
+                <SvgText x={pad.l - 8} y={y(tv) + 4} fontSize={fontSize} fontFamily={fonts.regular} fill={colors.textMuted} textAnchor="end">
                   {tick(tv)}
                 </SvgText>
               </React.Fragment>
             ))}
             {labels.map((l, i) =>
               i % every === 0 && i < n - 1 && clearOfLast(i) ? (
-                <SvgText key={`${l}-${i}`} x={x(i)} y={height - 6} fontSize={fontSize} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : 'middle'}>
+                <SvgText key={`${l}-${i}`} x={x(i)} y={height - 6} fontSize={fontSize} fontFamily={fonts.regular} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : 'middle'}>
                   {l}
                 </SvgText>
               ) : null,
             )}
-            <SvgText x={x(n - 1)} y={height - 6} fontSize={fontSize} fill={colors.textMuted} textAnchor="end">
+            <SvgText x={x(n - 1)} y={height - 6} fontSize={fontSize} fontFamily={fonts.regular} fill={colors.textMuted} textAnchor="end">
               {labels[n - 1]}
             </SvgText>
             {series.map(s => (
