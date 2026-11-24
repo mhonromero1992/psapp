@@ -1,11 +1,10 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Lang } from "@/lib/i18n";
+import {create} from 'zustand';
+import {persist} from 'zustand/middleware';
+import type {TextSize} from '../config/theme';
+import {appStorage} from './storage';
 
-export type ThemePref = "light" | "dark" | "system";
-/** Root text size. Standard is already larger than the web default because most members are older. */
-export type TextSize = "standard" | "large" | "xlarge";
-export const TEXT_SIZE_PX: Record<TextSize, number> = { standard: 17, large: 19, xlarge: 21 };
+export type Lang = 'en' | 'fil';
+export type ThemePref = 'light' | 'dark' | 'system';
 
 interface PrefsState {
   theme: ThemePref;
@@ -13,29 +12,24 @@ interface PrefsState {
   textSize: TextSize;
   /** Presenter tools: simulate PSMBFI processing during a demo. */
   presenter: boolean;
-  setPresenter: (v: boolean) => void;
   setTheme: (t: ThemePref) => void;
   setLang: (l: Lang) => void;
   setTextSize: (t: TextSize) => void;
+  setPresenter: (v: boolean) => void;
 }
 
 export const usePrefs = create<PrefsState>()(
   persist(
-    (set) => ({
-      theme: "light",
-      lang: "en",
-      textSize: "standard",
+    set => ({
+      theme: 'system',
+      lang: 'en',
+      textSize: 'standard',
       presenter: false,
-      setPresenter: (presenter) => set({ presenter }),
-      setTheme: (theme) => set({ theme }),
-      setLang: (lang) => set({ lang }),
-      setTextSize: (textSize) => set({ textSize }),
+      setTheme: theme => set({theme}),
+      setLang: lang => set({lang}),
+      setTextSize: textSize => set({textSize}),
+      setPresenter: presenter => set({presenter}),
     }),
-    { name: "psaccess.prefs", version: 2, migrate: (p) => ({ ...(p as object), textSize: "standard" }) as never },
+    {name: 'psaccess.prefs', version: 1, storage: appStorage},
   ),
 );
-
-export function resolveTheme(pref: ThemePref): "light" | "dark" {
-  if (pref !== "system") return pref;
-  return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}

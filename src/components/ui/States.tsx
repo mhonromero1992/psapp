@@ -1,58 +1,96 @@
-import { ArrowClockwise, WarningOctagon } from "@phosphor-icons/react";
-import { cn } from "@/lib/cn";
-import { BladeMark } from "@/components/brand/BladeMark";
-import { Button } from "./Button";
+import React, {useEffect, useRef} from 'react';
+import {Animated, StyleSheet, View} from 'react-native';
+import {useTheme} from 'styled-components/native';
+import {useT} from '../../lib/i18n';
+import {useUi} from '../../store/ui';
+import {BladeMark} from '../brand/Brand';
+import {Button} from './Button';
+import {Icon} from './Icon';
+import {Txt} from './Txt';
 
-/** Empty state: says what is missing and offers the next action. */
-export function EmptyState({ title, body, action, className, compact }: { title: string; body?: string; action?: React.ReactNode; className?: string; compact?: boolean }) {
+/** Empty: what is missing, and the next step. */
+export function EmptyState({title, body, action}: {title: string; body?: string; action?: React.ReactNode}) {
+  const {colors} = useTheme();
   return (
-    <div className={cn("flex flex-col items-center text-center", compact ? "py-8" : "py-14", className)}>
-      <div className="relative mb-4 grid size-16 place-items-center rounded-full bg-sunken">
-        <BladeMark size={30} className="opacity-70 grayscale-[0.35]" />
-      </div>
-      <p className="font-display text-[1.1rem] font-bold [font-stretch:92%]">{title}</p>
-      {body && <p className="mt-1 max-w-sm text-[0.9rem] text-ink-3">{body}</p>}
-      {action && <div className="mt-5">{action}</div>}
-    </div>
+    <View style={styles.center}>
+      <View style={[styles.disc, {backgroundColor: colors.panel2}]}>
+        <BladeMark size={36} opacity={0.75} />
+      </View>
+      <Txt variant="heading" style={styles.text}>
+        {title}
+      </Txt>
+      {body ? (
+        <Txt variant="body" color="soft" style={styles.text}>
+          {body}
+        </Txt>
+      ) : null}
+      {action ? <View style={styles.action}>{action}</View> : null}
+    </View>
   );
 }
 
-export function ErrorState({ title = "We couldn't load this", body = "The connection dropped while loading. Your data is safe.", onRetry, className }: { title?: string; body?: string; onRetry?: () => void; className?: string }) {
+/** Error: plain cause, a retry, and a person to call. */
+export function ErrorState({onRetry, helpTopic}: {onRetry: () => void; helpTopic?: string}) {
+  const t = useT();
+  const {colors} = useTheme();
+  const openHelp = useUi(s => s.openHelp);
   return (
-    <div role="alert" className={cn("flex flex-col items-center py-12 text-center", className)}>
-      <div className="mb-4 grid size-14 place-items-center rounded-full bg-negative-soft text-negative">
-        <WarningOctagon size={28} weight="duotone" />
-      </div>
-      <p className="font-display text-[1.1rem] font-bold [font-stretch:92%]">{title}</p>
-      <p className="mt-1 max-w-sm text-[0.9rem] text-ink-3">{body}</p>
-      {onRetry && (
-        <Button variant="quiet" className="mt-5" icon={<ArrowClockwise size={16} weight="bold" />} onClick={onRetry}>
-          Try again
-        </Button>
-      )}
-    </div>
+    <View style={styles.center} accessibilityRole="alert">
+      <View style={[styles.disc, {backgroundColor: colors.tones.bad.bg}]}>
+        <Icon name="warning" size={34} color={colors.tones.bad.text} weight="duotone" />
+      </View>
+      <Txt variant="heading" style={styles.text}>
+        {t("We couldn't load this", 'Hindi namin ito ma-load')}
+      </Txt>
+      <Txt variant="body" color="soft" style={styles.text}>
+        {t('The signal dropped while loading. Your records are safe.', 'Nawala ang signal habang naglo-load. Ligtas ang iyong mga record.')}
+      </Txt>
+      <View style={styles.action}>
+        <Button title={t('Try again', 'Subukan muli')} icon="refresh" variant="quiet" onPress={onRetry} />
+        <Button title={t('Ask us to call you', 'Tatawagan ka namin')} icon="phone" variant="ghost" onPress={() => openHelp(helpTopic)} />
+      </View>
+    </View>
   );
 }
 
-export function Skeleton({ className }: { className?: string }) {
-  return <div aria-hidden className={cn("skeleton h-4", className)} />;
+/** Loading: soft placeholder blocks in the shape of what is coming. */
+export function Skeleton({height = 18, width = '100%', radius = 8}: {height?: number; width?: number | `${number}%`; radius?: number}) {
+  const {colors} = useTheme();
+  const pulse = useRef(new Animated.Value(0.5)).current;
+  useEffect(() => {
+    const loop = Animated.loop(Animated.sequence([Animated.timing(pulse, {toValue: 1, duration: 700, useNativeDriver: true}), Animated.timing(pulse, {toValue: 0.5, duration: 700, useNativeDriver: true})]));
+    loop.start();
+    return () => loop.stop();
+  }, [pulse]);
+  return <Animated.View style={{height, width, borderRadius: radius, backgroundColor: colors.panel2, opacity: pulse}} />;
 }
 
-/** Placeholder rows while a list loads. */
-export function LoadingRows({ rows = 5, className, label = "Loading" }: { rows?: number; className?: string; label?: string }) {
+export function LoadingBlock({rows = 3}: {rows?: number}) {
+  const t = useT();
   return (
-    <div className={cn("flex flex-col gap-3", className)} role="status" aria-live="polite">
-      <span className="sr-only">{label}</span>
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3">
-          <Skeleton className="size-9 rounded-full" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-3.5 w-2/5" />
-            <Skeleton className="h-3 w-3/5" />
-          </div>
-          <Skeleton className="h-4 w-20" />
-        </div>
+    <View style={styles.loading} accessible accessibilityLabel={t('Loading', 'Naglo-load')} accessibilityRole="progressbar">
+      <Skeleton height={150} radius={20} />
+      {Array.from({length: rows}).map((_, i) => (
+        <View key={i} style={styles.loadRow}>
+          <Skeleton height={46} width={46} radius={14} />
+          <View style={styles.flex}>
+            <Skeleton height={16} width="60%" />
+            <View style={styles.gap} />
+            <Skeleton height={14} width="85%" />
+          </View>
+        </View>
       ))}
-    </div>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  center: {alignItems: 'center', paddingVertical: 36, paddingHorizontal: 8, gap: 8},
+  disc: {width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 6},
+  text: {textAlign: 'center'},
+  action: {marginTop: 12, alignSelf: 'stretch', gap: 8},
+  loading: {gap: 18},
+  loadRow: {flexDirection: 'row', alignItems: 'center', gap: 14},
+  flex: {flex: 1},
+  gap: {height: 8},
+});

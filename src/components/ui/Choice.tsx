@@ -1,82 +1,123 @@
-import { Checkbox as RCheckbox, RadioGroup, Switch as RSwitch } from "radix-ui";
-import { cn } from "@/lib/cn";
+import React from 'react';
+import {Pressable, StyleSheet, Switch as RNSwitch, View} from 'react-native';
+import {useTheme} from 'styled-components/native';
+import {Icon, type IconName} from './Icon';
+import {Txt} from './Txt';
 
-export function Checkbox({ checked, onCheckedChange, label, description, id, className, disabled }: { checked: boolean; onCheckedChange: (v: boolean) => void; label: React.ReactNode; description?: React.ReactNode; id?: string; className?: string; disabled?: boolean }) {
+/** On/off with the whole row as the target. */
+export function SwitchRow({value, onChange, label, description, icon}: {value: boolean; onChange: (v: boolean) => void; label: string; description?: string; icon?: IconName}) {
+  const {colors} = useTheme();
   return (
-    <label className={cn("group flex cursor-pointer items-start gap-3 rounded-md py-1", disabled && "cursor-not-allowed opacity-60", className)}>
-      <RCheckbox.Root
-        id={id}
-        checked={checked}
-        disabled={disabled}
-        onCheckedChange={(v) => onCheckedChange(v === true)}
-        className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-[7px] bg-surface shadow-[inset_0_0_0_1.5px_var(--line-strong)] transition-[background-color,box-shadow] duration-200 data-[state=checked]:bg-primary-strong data-[state=checked]:shadow-none group-hover:shadow-[inset_0_0_0_1.5px_var(--primary)]"
-      >
-        <RCheckbox.Indicator>
-          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden><path d="M2.5 6.2 5 8.6 9.6 3.6" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </RCheckbox.Indicator>
-      </RCheckbox.Root>
-      <span className="min-w-0">
-        <span className="block text-[1rem] font-medium leading-snug text-ink">{label}</span>
-        {description && <span className="mt-0.5 block text-[0.9rem] text-ink-2">{description}</span>}
-      </span>
-    </label>
+    <Pressable onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{checked: value}} accessibilityLabel={label} accessibilityHint={description} style={styles.row}>
+      {icon ? <Icon name={icon} size={28} weight="duotone" color={colors.primaryText} /> : null}
+      <View style={styles.flex}>
+        <Txt variant="bodyStrong">{label}</Txt>
+        {description ? (
+          <Txt variant="small" color="soft">
+            {description}
+          </Txt>
+        ) : null}
+      </View>
+      <RNSwitch value={value} onValueChange={onChange} trackColor={{false: colors.lineStrong, true: colors.positive}} thumbColor="#ffffff" ios_backgroundColor={colors.lineStrong} importantForAccessibility="no" accessibilityElementsHidden />
+    </Pressable>
   );
 }
 
-export function Switch({ checked, onCheckedChange, label, description, className }: { checked: boolean; onCheckedChange: (v: boolean) => void; label: React.ReactNode; description?: React.ReactNode; className?: string }) {
+export function Checkbox({checked, onChange, label, description}: {checked: boolean; onChange: (v: boolean) => void; label: string; description?: string}) {
+  const {colors} = useTheme();
   return (
-    <label className={cn("flex cursor-pointer items-center justify-between gap-4 py-1", className)}>
-      <span className="min-w-0">
-        <span className="block text-[1rem] font-medium text-ink">{label}</span>
-        {description && <span className="mt-0.5 block text-[0.9rem] text-ink-2">{description}</span>}
-      </span>
-      <RSwitch.Root
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        className="relative h-8 w-14 shrink-0 rounded-full bg-slate-400 shadow-[inset_0_1px_2px_rgb(0_0_0/0.12)] transition-colors duration-300 data-[state=checked]:bg-green-700 dark:bg-slate-700"
-      >
-        <RSwitch.Thumb className="block size-[1.55rem] translate-x-[0.18rem] rounded-full bg-white shadow-[0_1px_3px_rgb(0_0_0/0.25)] transition-transform duration-300 ease-out-quint data-[state=checked]:translate-x-[1.77rem]" />
-      </RSwitch.Root>
-    </label>
+    <Pressable onPress={() => onChange(!checked)} accessibilityRole="checkbox" accessibilityState={{checked}} accessibilityLabel={label} style={styles.check}>
+      <View style={[styles.box, {borderColor: checked ? colors.primary : colors.lineStrong, backgroundColor: checked ? colors.primary : colors.panel}]}>{checked ? <Icon name="check" size={18} color="#fff" weight="bold" /> : null}</View>
+      <View style={styles.flex}>
+        <Txt variant="body">{label}</Txt>
+        {description ? (
+          <Txt variant="small" color="soft">
+            {description}
+          </Txt>
+        ) : null}
+      </View>
+    </Pressable>
   );
 }
 
-export interface RadioCardOption<T extends string> {
+export interface RadioOption<T extends string> {
   value: T;
-  label: React.ReactNode;
-  description?: React.ReactNode;
-  aside?: React.ReactNode;
-  icon?: React.ReactNode;
+  label: string;
+  description?: string;
+  aside?: string;
+  icon?: IconName;
   disabled?: boolean;
 }
 
-/** Selectable cards. The selected card gains a ring and a filled check, not just a color. */
-export function RadioCards<T extends string>({ value, onValueChange, options, className, columns = 1, ariaLabel }: { value: T | ""; onValueChange: (v: T) => void; options: RadioCardOption<T>[]; className?: string; columns?: 1 | 2 | 3; ariaLabel: string }) {
+/** Big selectable cards: the chosen one gets a ring and a filled check, never colour alone. */
+export function RadioCards<T extends string>({value, onChange, options, label}: {value: T | ''; onChange: (v: T) => void; options: RadioOption<T>[]; label: string}) {
+  const {colors} = useTheme();
   return (
-    <RadioGroup.Root
-      value={value}
-      onValueChange={(v) => onValueChange(v as T)}
-      aria-label={ariaLabel}
-      className={cn("grid gap-2.5", columns === 2 && "sm:grid-cols-2", columns === 3 && "sm:grid-cols-3", className)}
-    >
-      {options.map((o) => (
-        <RadioGroup.Item
-          key={o.value}
-          value={o.value}
-          disabled={o.disabled}
-          className="sheen group relative flex w-full items-start gap-3 rounded-md bg-surface p-3.5 text-left shadow-[inset_0_0_0_1px_var(--line-strong)] transition-[box-shadow,background-color] duration-200 hover:shadow-[inset_0_0_0_1px_var(--primary)] data-[state=checked]:bg-primary-soft data-[state=checked]:shadow-[inset_0_0_0_2px_var(--primary)] disabled:opacity-50"
-        >
-          {o.icon && <span className="mt-0.5 shrink-0 text-primary">{o.icon}</span>}
-          <span className="min-w-0 flex-1">
-            <span className="block font-semibold text-ink">{o.label}</span>
-            {o.description && <span className="mt-0.5 block text-[0.9rem] leading-snug text-ink-2">{o.description}</span>}
-          </span>
-          {o.aside && <span className="shrink-0 text-right text-[0.8125rem] text-ink-2">{o.aside}</span>}
-          <span aria-hidden className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full shadow-[inset_0_0_0_1.5px_var(--line-strong)] group-data-[state=checked]:bg-primary-strong group-data-[state=checked]:shadow-none">
-            <svg width="10" height="10" viewBox="0 0 12 12" className="opacity-0 group-data-[state=checked]:opacity-100"><path d="M2.5 6.2 5 8.6 9.6 3.6" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </span>
-        </RadioGroup.Item>
-      ))}
-    </RadioGroup.Root>
+    <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.cards}>
+      {options.map(o => {
+        const on = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            disabled={o.disabled}
+            onPress={() => onChange(o.value)}
+            accessibilityRole="radio"
+            accessibilityState={{checked: on, disabled: o.disabled}}
+            accessibilityLabel={[o.label, o.description, o.aside].filter(Boolean).join(', ')}
+            style={({pressed}) => [
+              styles.card,
+              {backgroundColor: on ? colors.primarySoft : pressed ? colors.panel2 : colors.panel, borderColor: on ? colors.primary : colors.line, borderWidth: on ? 2 : 1.5, opacity: o.disabled ? 0.5 : 1},
+            ]}>
+            {o.icon ? <Icon name={o.icon} size={28} weight="duotone" color={colors.primaryText} /> : null}
+            <View style={styles.flex}>
+              <Txt variant="bodyStrong">{o.label}</Txt>
+              {o.description ? (
+                <Txt variant="small" color="soft">
+                  {o.description}
+                </Txt>
+              ) : null}
+            </View>
+            {o.aside ? (
+              <Txt variant="smallStrong" color="soft">
+                {o.aside}
+              </Txt>
+            ) : null}
+            <View style={[styles.radio, {borderColor: on ? colors.primary : colors.lineStrong, backgroundColor: on ? colors.primary : 'transparent'}]}>{on ? <Icon name="check" size={15} color="#fff" weight="bold" /> : null}</View>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
+
+/** A small set of mutually exclusive modes (12 months / 5 years / All). */
+export function Segmented<T extends string>({value, onChange, options, label}: {value: T; onChange: (v: T) => void; options: {value: T; label: string}[]; label: string}) {
+  const {colors} = useTheme();
+  return (
+    <View accessibilityRole="radiogroup" accessibilityLabel={label} style={[styles.seg, {backgroundColor: colors.panel2}]}>
+      {options.map(o => {
+        const on = o.value === value;
+        return (
+          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="radio" accessibilityState={{checked: on}} style={[styles.segItem, on && [styles.segOn, {backgroundColor: colors.panel}]]}>
+            <Txt variant="smallStrong" color={on ? 'text' : 'soft'}>
+              {o.label}
+            </Txt>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  flex: {flex: 1},
+  row: {flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, paddingVertical: 8},
+  check: {flexDirection: 'row', alignItems: 'flex-start', gap: 14, minHeight: 52, paddingVertical: 8},
+  box: {width: 28, height: 28, borderRadius: 8, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginTop: 1},
+  cards: {gap: 10},
+  card: {flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, minHeight: 64},
+  radio: {width: 26, height: 26, borderRadius: 13, borderWidth: 2, alignItems: 'center', justifyContent: 'center'},
+  seg: {flexDirection: 'row', padding: 4, borderRadius: 14, gap: 4},
+  segItem: {flex: 1, minHeight: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 11, paddingHorizontal: 8},
+  segOn: {shadowColor: '#071b37', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: {width: 0, height: 1}, elevation: 1},
+});

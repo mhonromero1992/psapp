@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+import { appStorage } from "./storage";
 import { TODAY, amortization } from "@/lib/format";
 import { pad } from "@/lib/random";
 import { generateAll, memberName } from "@/data/generate";
@@ -9,7 +10,7 @@ import type {
 } from "@/data/types";
 
 /*
- * The Member App's single source of truth (sample data, persisted in this browser).
+ * The Member App's single source of truth (sample data, persisted on the phone).
  * The demo member's loans, claims, payouts and notifications all read the same record.
  *
  * RULE for components: never return a new array/object from a selector.
@@ -314,7 +315,7 @@ export const useDB = create<DBState>()(
     {
       name: "psaccess.member-db",
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: appStorage,
       partialize: (s) => ({
         memberOverrides: s.memberOverrides, loans: s.loans, claims: s.claims, enrolments: s.enrolments, payouts: s.payouts,
         notifications: s.notifications, assist: s.assist, callbacks: s.callbacks,

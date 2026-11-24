@@ -310,19 +310,21 @@ const LOAN_LABEL: Record<LoanStatus, string> = {
 };
 export const loanStatusLabel = (s: LoanStatus) => LOAN_LABEL[s];
 
+const notAfterToday = (d: Date) => (d.getTime() > TODAY.getTime() - 3_600_000 ? new Date(TODAY.getTime() - 3_600_000) : d);
+
 function loanTimeline(appliedAt: string, status: LoanStatus, r: Rng, maker: string, checker: string): TimelineEvent[] {
   const t: TimelineEvent[] = [];
   let at = new Date(appliedAt);
   const reach = status === "paid" ? 4 : status === "returned" || status === "rejected" ? 1 : LOAN_FLOW.indexOf(status);
   for (let i = 0; i <= reach; i++) {
     const s = LOAN_FLOW[i];
-    t.push({ at: iso(at), label: LOAN_LABEL[s], by: i === 0 ? undefined : i === 3 || i === 4 ? checker : maker });
+    t.push({ at: iso(notAfterToday(at)), label: LOAN_LABEL[s], by: i === 0 ? undefined : i === 3 || i === 4 ? checker : maker });
     at = addDays(at, int(r, 0, 2) + (i === 0 ? 0 : 1));
     at.setHours(int(r, 9, 16), int(r, 0, 59));
   }
-  if (status === "returned") t.push({ at: iso(at), label: LOAN_LABEL.returned, by: maker, note: "Please upload a clearer copy of your latest payslip." });
-  if (status === "rejected") t.push({ at: iso(at), label: LOAN_LABEL.rejected, by: checker, note: "Net take-home pay would fall below the agency minimum." });
-  if (status === "paid") t.push({ at: iso(addDays(at, 30 * 12)), label: LOAN_LABEL.paid });
+  if (status === "returned") t.push({ at: iso(notAfterToday(at)), label: LOAN_LABEL.returned, by: maker, note: "Please upload a clearer copy of your latest payslip." });
+  if (status === "rejected") t.push({ at: iso(notAfterToday(at)), label: LOAN_LABEL.rejected, by: checker, note: "Net take-home pay would fall below the agency minimum." });
+  if (status === "paid") t.push({ at: iso(notAfterToday(addDays(at, 30 * 12))), label: LOAN_LABEL.paid });
   return t;
 }
 
@@ -370,6 +372,12 @@ export function generateLoans(members: Member[]): Loan[] {
       risk: weighted(r, [["low", 0.7], ["medium", 0.24], ["high", 0.06]] as const),
       ...overrides,
     };
+    if (loan.status === "paid") {
+      loan.paidInstallments = loan.termMonths;
+      loan.balance = 0;
+    } else if (loan.paidInstallments > loan.termMonths) {
+      loan.paidInstallments = loan.termMonths - 1;
+    }
     loans.push(loan);
     return loan;
   };
@@ -425,12 +433,12 @@ function claimTimeline(filedAt: string, status: ClaimStatus, r: Rng, assignee: s
   let at = new Date(filedAt);
   const reach = status === "returned" ? 1 : status === "denied" ? 2 : CLAIM_FLOW.indexOf(status);
   for (let i = 0; i <= reach; i++) {
-    t.push({ at: iso(at), label: CLAIM_LABEL[CLAIM_FLOW[i]], by: i === 0 ? undefined : i >= 3 ? checker : assignee });
+    t.push({ at: iso(notAfterToday(at)), label: CLAIM_LABEL[CLAIM_FLOW[i]], by: i === 0 ? undefined : i >= 3 ? checker : assignee });
     at = addDays(at, int(r, 1, 3));
     at.setHours(int(r, 9, 16), int(r, 0, 59));
   }
-  if (status === "returned") t.push({ at: iso(at), label: CLAIM_LABEL.returned, by: assignee, note: "The medical abstract is unreadable. Please upload a new photo." });
-  if (status === "denied") t.push({ at: iso(at), label: CLAIM_LABEL.denied, by: checker, note: "Confinement happened before the coverage start date." });
+  if (status === "returned") t.push({ at: iso(notAfterToday(at)), label: CLAIM_LABEL.returned, by: assignee, note: "The medical abstract is unreadable. Please upload a new photo." });
+  if (status === "denied") t.push({ at: iso(notAfterToday(at)), label: CLAIM_LABEL.denied, by: checker, note: "Confinement happened before the coverage start date." });
   return t;
 }
 

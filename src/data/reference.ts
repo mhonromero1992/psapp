@@ -179,7 +179,7 @@ export const BENEFIT_TYPES: BenefitType[] = [
     name: "Killed in Action",
     nameFil: "Nasawi sa tungkulin",
     description: "Benefit paid to beneficiaries when a member dies in the line of duty.",
-    schedule: "Depends on rank and MEP coverage (sample schedule in the staff module)",
+    schedule: "Depends on rank and MEP coverage (sample)",
     documents: ["Death certificate", "Spot report", "Certification from unit commander", "Claimant's valid ID", "Proof of relationship"],
     filer: "beneficiary",
   },

@@ -1,0 +1,13 @@
+export {default as Welcome} from '../app/welcome/Welcome';
+export {default as SignIn} from '../app/auth/SignIn';
+export {default as Verify} from '../app/auth/Verify';
+export {default as Enrol} from '../app/enrol/Enrol';
+export {default as LoanApply} from '../app/loans/LoanApply';
+export {default as LoanDetail} from '../app/loans/LoanDetail';
+export {default as ClaimNew} from '../app/claims/ClaimNew';
+export {default as ClaimDetail} from '../app/claims/ClaimDetail';
+export {default as Payouts} from '../app/payouts/Payouts';
+export {default as Assist} from '../app/assist/Assist';
+export {default as Branches} from '../app/branches/Branches';
+export {default as Profile} from '../app/profile/Profile';
+export {default as Notifications} from '../app/notifications/Notifications';

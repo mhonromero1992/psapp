@@ -1,81 +1,94 @@
-import { forwardRef } from "react";
-import { Link, type LinkProps } from "react-router";
-import { cn } from "@/lib/cn";
-import { BladeMark } from "@/components/brand/BladeMark";
+import React, {useRef} from 'react';
+import {ActivityIndicator, Animated, Pressable, StyleSheet, View, type StyleProp, type ViewStyle} from 'react-native';
+import {useTheme} from 'styled-components/native';
+import {TOUCH} from '../../config/theme';
+import {Icon, type IconName} from './Icon';
+import {Txt} from './Txt';
 
-export type ButtonVariant = "primary" | "positive" | "negative" | "tonal" | "quiet" | "ghost" | "light" | "glass";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant = 'primary' | 'positive' | 'negative' | 'secondary' | 'quiet' | 'ghost' | 'light';
 
-interface Common {
+export interface ButtonProps {
+  /** Names the action: "Apply for a loan", "File a claim". */
+  title: string;
+  onPress: () => void;
   variant?: ButtonVariant;
-  size?: ButtonSize;
+  busy?: boolean;
+  disabled?: boolean;
+  icon?: IconName;
+  iconRight?: IconName;
+  size?: 'md' | 'lg';
+  /** Stretch to the parent's width (the default on phones). */
   block?: boolean;
-  icon?: React.ReactNode;
-  iconRight?: React.ReactNode;
-  /** Icon-only button. Requires aria-label. */
-  iconOnly?: boolean;
-  className?: string;
-  children?: React.ReactNode;
+  accessibilityHint?: string;
+  testID?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
-function classes({ variant = "primary", size = "md", block, iconOnly }: Common) {
-  return cn("btn", `btn-${variant}`, size !== "md" && `btn-${size}`, block && "btn-block", iconOnly && "btn-icon");
-}
+/**
+ * The one button. Press: a short scale-down and a deeper fill; busy: a spinner beside the label;
+ * disabled: muted, never invisible. At least 52dp tall, labels wrap rather than clip.
+ */
+export function Button({title, onPress, variant = 'primary', busy, disabled, icon, iconRight, size = 'lg', block = true, accessibilityHint, testID, style}: ButtonProps) {
+  const {colors, scale} = useTheme();
+  const off = Boolean(disabled || busy);
+  const press = useRef(new Animated.Value(1)).current;
+  const to = (v: number) => Animated.spring(press, {toValue: v, useNativeDriver: true, speed: 40, bounciness: 0}).start();
 
-function Inner({ icon, iconRight, children, loading }: Common & { loading?: boolean }) {
+  const fill: Record<ButtonVariant, [string, string]> = {
+    primary: [colors.primary, colors.primaryPressed],
+    positive: [colors.positive, colors.positivePressed],
+    negative: ['#c4141b', '#a51117'],
+    secondary: [colors.primarySoft, colors.primarySoft],
+    quiet: [colors.panel, colors.panel2],
+    ghost: ['transparent', colors.panel2],
+    light: ['#ffffff', '#e3ecf8'],
+  };
+  const fg =
+    variant === 'primary' || variant === 'positive' || variant === 'negative'
+      ? colors.onPrimary
+      : variant === 'secondary' || variant === 'ghost'
+      ? colors.primaryText
+      : variant === 'light'
+      ? '#071b37'
+      : colors.text;
+
   return (
-    <>
-      <span className="btn-label inline-flex items-center gap-[inherit] transition-opacity duration-200">
-        {icon}
-        {children}
-        {iconRight}
-      </span>
-      {loading && (
-        <span className="btn-spinner" aria-hidden>
-          <BladeMark size={20} spin rim={false} />
-        </span>
-      )}
-    </>
+    <Animated.View style={[{transform: [{scale: press}]}, block ? styles.block : styles.inline, style]}>
+      <Pressable
+        testID={testID}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{disabled: off, busy: Boolean(busy)}}
+        disabled={off}
+        onPress={onPress}
+        onPressIn={() => to(0.97)}
+        onPressOut={() => to(1)}
+        style={({pressed}) => [
+          styles.base,
+          {minHeight: Math.round((size === 'lg' ? TOUCH + 4 : TOUCH - 4) * Math.min(scale, 1.15)), backgroundColor: off && variant !== 'ghost' ? colors.panel2 : fill[variant][pressed ? 1 : 0]},
+          variant === 'quiet' && {borderWidth: 1.5, borderColor: colors.line},
+          variant === 'primary' && !off && styles.lift,
+          variant === 'ghost' && styles.ghost,
+        ]}>
+        <View style={styles.inner}>
+          {busy ? <ActivityIndicator color={off && variant !== 'ghost' ? colors.textMuted : fg} /> : icon ? <Icon name={icon} size={21} color={off ? colors.textMuted : fg} weight="bold" /> : null}
+          <Txt variant="button" style={[styles.label, {color: off ? colors.textMuted : fg}]}>
+            {title}
+          </Txt>
+          {iconRight && !busy ? <Icon name={iconRight} size={19} color={off ? colors.textMuted : fg} weight="bold" /> : null}
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
-export interface ButtonProps extends Common, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
-  loading?: boolean;
-  loadingLabel?: string;
-}
-
-/** Premium button. States: hover light-follow, press, focus halo, loading, disabled. */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant, size, block, icon, iconRight, iconOnly, loading, loadingLabel = "Working", className, children, type = "button", disabled, ...rest },
-  ref,
-) {
-  return (
-    <button
-      ref={ref}
-      type={type}
-      className={cn(classes({ variant, size, block, iconOnly }), className)}
-      data-loading={loading ? "true" : undefined}
-      aria-busy={loading || undefined}
-      disabled={disabled}
-      {...rest}
-    >
-      <Inner icon={icon} iconRight={iconRight} loading={loading}>
-        {children}
-      </Inner>
-      {loading && <span className="sr-only" role="status">{loadingLabel}</span>}
-    </button>
-  );
+const styles = StyleSheet.create({
+  block: {alignSelf: 'stretch'},
+  inline: {alignSelf: 'flex-start'},
+  base: {borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12, justifyContent: 'center'},
+  lift: {shadowColor: '#1054a4', shadowOpacity: 0.28, shadowRadius: 10, shadowOffset: {width: 0, height: 6}, elevation: 3},
+  ghost: {paddingHorizontal: 12},
+  inner: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap'},
+  label: {textAlign: 'center'},
 });
-
-export interface ButtonLinkProps extends Common, Omit<LinkProps, "children" | "className"> {}
-
-/** Navigation styled as a button: always a real link. */
-export function ButtonLink({ variant, size, block, icon, iconRight, iconOnly, className, children, ...rest }: ButtonLinkProps) {
-  return (
-    <Link className={cn(classes({ variant, size, block, iconOnly }), className)} {...rest}>
-      <Inner icon={icon} iconRight={iconRight}>
-        {children}
-      </Inner>
-    </Link>
-  );
-}

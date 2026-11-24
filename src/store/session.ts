@@ -1,8 +1,8 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import {create} from 'zustand';
+import {persist} from 'zustand/middleware';
+import {appStorage} from './storage';
 
 export interface SessionUser {
-  portal: "member";
   id: string;
   name: string;
   title: string;
@@ -12,38 +12,42 @@ export interface SessionUser {
 
 interface SessionState {
   user: SessionUser | null;
-  /** Fingerprint/face sign-in turned on for a member on this device (simulated). */
+  /** Fingerprint sign-in turned on for a member on this phone (simulated in the prototype). */
   biometric: Record<string, boolean>;
   /** The sample member's PIN (changeable in the demo). */
   pin: string;
-  setPin: (pin: string) => void;
   signIn: (u: SessionUser) => void;
   signOut: () => void;
   setBiometric: (id: string, on: boolean) => void;
+  setPin: (pin: string) => void;
 }
 
 export const useSession = create<SessionState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
-      biometric: { "PSM-2012-004512": true },
-      pin: "123456",
-      setPin: (pin) => set({ pin }),
-      signIn: (user) => set({ user }),
-      signOut: () => set({ user: null }),
-      setBiometric: (id, on) => set((s) => ({ biometric: { ...s.biometric, [id]: on } })),
+      biometric: {'PSM-2012-004512': true},
+      pin: '123456',
+      signIn: user => set({user}),
+      signOut: () => set({user: null}),
+      setBiometric: (id, on) => set(s => ({biometric: {...s.biometric, [id]: on}})),
+      setPin: pin => set({pin}),
     }),
-    { name: "psaccess.session", version: 3, migrate: () => ({ user: null, biometric: { "PSM-2012-004512": true }, pin: "123456" }) as unknown as SessionState },
+    {name: 'psaccess.session', version: 1, storage: appStorage},
   ),
 );
 
-/** The sample member used for the demo. PIN and OTP are shown on screen as sample values. */
-export const DEMO_MEMBER: SessionUser & { mobile: string; pin: string } = {
-  portal: "member",
-  id: "PSM-2012-004512",
-  name: "Rowena D. Bautista",
-  title: "PMSg · Philippine National Police",
-  scope: "PSM-2012-004512",
-  mobile: "0917 482 1196",
-  pin: "123456",
+/** The sample member used for the demo. PIN and one-time code are shown on screen as sample values. */
+export const DEMO_MEMBER = {
+  id: 'PSM-2012-004512',
+  name: 'Rowena D. Bautista',
+  title: 'PMSg · Philippine National Police',
+  scope: 'PSM-2012-004512',
+  mobile: '0917 482 1196',
 };
+export const SAMPLE_OTP = '482913';
+
+export function demoUser(): SessionUser {
+  const {mobile: _m, ...u} = DEMO_MEMBER;
+  return u;
+}
