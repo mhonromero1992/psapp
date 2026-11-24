@@ -13,6 +13,10 @@ interface UiState {
   toasts: ToastItem[];
   helpOpen: boolean;
   helpTopic: string;
+  /** Open sheets and dialogs, last on top. Toasts show on the top one (a Modal covers the app). */
+  modals: number[];
+  pushModal: (id: number) => void;
+  popModal: (id: number) => void;
   push: (t: Omit<ToastItem, 'id'>) => void;
   dismiss: (id: number) => void;
   openHelp: (topic?: string) => void;
@@ -24,6 +28,9 @@ export const useUi = create<UiState>()(set => ({
   toasts: [],
   helpOpen: false,
   helpTopic: 'Something else',
+  modals: [],
+  pushModal: id => set(s => ({modals: [...s.modals.filter(m => m !== id), id]})),
+  popModal: id => set(s => ({modals: s.modals.filter(m => m !== id)})),
   push: t => {
     const id = ++seq;
     set(s => ({toasts: [...s.toasts.slice(-2), {...t, id}]}));

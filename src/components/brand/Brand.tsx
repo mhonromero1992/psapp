@@ -39,9 +39,14 @@ export const RIBBONS = {
   assist: ['#0a2a52', '#ec1c24', '#0a2a52'],
 } as const;
 
+const RIM_LIGHT = 'rgba(10, 22, 40, 0.3)';
+const RIM_DARK = 'rgba(234, 240, 248, 0.55)';
+
 export function Ribbon({stripes = RIBBONS.brand, width = 30, height = 10}: {stripes?: readonly string[]; width?: number; height?: number}) {
+  const {colors} = useTheme();
+  // A rim that shows in both schemes: navy stripes vanish on the dark panel without it.
   return (
-    <View style={[styles.ribbon, {width, height}]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View style={[styles.ribbon, {width, height, borderColor: colors.scheme === 'dark' ? RIM_DARK : RIM_LIGHT}]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {stripes.map((c, i) => (
         <View key={`${c}-${i}`} style={[styles.stripe, {backgroundColor: c}]} />
       ))}
@@ -79,7 +84,7 @@ export function BladeMark({size = 40, rim = false, opacity = 1}: {size?: number;
 const styles = StyleSheet.create({
   lockup: {flexDirection: 'row', alignItems: 'center', gap: 9},
   word: {letterSpacing: -0.2},
-  ribbon: {flexDirection: 'row', borderRadius: 2, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(0,0,0,0.25)'},
+  ribbon: {flexDirection: 'row', borderRadius: 2, overflow: 'hidden', borderWidth: 1},
   stripe: {flex: 1},
   ribbonLabel: {flexDirection: 'row', alignItems: 'center', gap: 10},
 });

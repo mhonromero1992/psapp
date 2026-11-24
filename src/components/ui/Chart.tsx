@@ -27,13 +27,15 @@ const tick = (v: number) => (v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1).repl
 
 /**
  * Time series: 2px lines, a light area wash, hairline grid, legend for two series. Touch and drag
- * to read any month (the readout sits above the chart, in words and numbers).
+ * to read any month (the readout sits above the chart, in words and numbers). `labels` are the short
+ * axis labels ("Oct ’26"); `readoutLabels`, when given, are the full ones for the readout.
  */
-export function AreaChart({labels, series, format, caption, height = 210}: {labels: string[]; series: ChartSeries[]; format: (v: number) => string; caption: string; height?: number}) {
-  const {colors} = useTheme();
+export function AreaChart({labels, readoutLabels, series, format, caption, height = 210}: {labels: string[]; readoutLabels?: string[]; series: ChartSeries[]; format: (v: number) => string; caption: string; height?: number}) {
+  const {colors, scale} = useTheme();
+  const fontSize = Math.round(12 * Math.min(scale, 1.15));
   const [width, setWidth] = useState(0);
   const [idx, setIdx] = useState<number | null>(null);
-  const pad = {t: 10, r: 10, b: 24, l: 44};
+  const pad = {t: 10, r: 10, b: 26, l: 46};
   const w = Math.max(1, width - pad.l - pad.r);
   const h = height - pad.t - pad.b;
   const n = labels.length;
@@ -57,20 +59,23 @@ export function AreaChart({labels, series, format, caption, height = 210}: {labe
     [w, n],
   );
   const shown = idx ?? n - 1;
-  const every = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(w / 64))));
+  // Space labels by their real width, and never draw one that would touch the last label.
+  const labelW = Math.max(...labels.map(l => l.length), 3) * fontSize * 0.56 + 10;
+  const every = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(w / labelW))));
+  const clearOfLast = (i: number) => (i === 0 ? x(i) + labelW : x(i) + labelW / 2) < x(n - 1) - labelW;
 
   return (
     <View>
       <View style={styles.readout} accessibilityLiveRegion="polite">
         <Txt variant="small" color="soft">
-          {labels[shown]}
+          {(readoutLabels ?? labels)[shown]}
         </Txt>
         <View style={styles.readRow}>
           {series.map(s => (
             <View key={s.key} style={styles.readItem}>
               <View style={[styles.key, {backgroundColor: color(s.slot)}]} />
               <Txt variant="smallStrong">{format(s.values[shown] ?? 0)}</Txt>
-              <Txt variant="small" color="soft">
+              <Txt variant="small" color="soft" style={styles.readLabel}>
                 {s.label}
               </Txt>
             </View>
@@ -91,19 +96,19 @@ export function AreaChart({labels, series, format, caption, height = 210}: {labe
             {ticks.map(tv => (
               <React.Fragment key={tv}>
                 <Line x1={pad.l} x2={pad.l + w} y1={y(tv)} y2={y(tv)} stroke={colors.chartGrid} strokeWidth={1} />
-                <SvgText x={pad.l - 8} y={y(tv) + 4} fontSize={11} fill={colors.textMuted} textAnchor="end">
+                <SvgText x={pad.l - 8} y={y(tv) + 4} fontSize={fontSize} fill={colors.textMuted} textAnchor="end">
                   {tick(tv)}
                 </SvgText>
               </React.Fragment>
             ))}
             {labels.map((l, i) =>
-              i % every === 0 && i < n - Math.ceil(every / 2) ? (
-                <SvgText key={`${l}-${i}`} x={x(i)} y={height - 6} fontSize={11} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : 'middle'}>
+              i % every === 0 && i < n - 1 && clearOfLast(i) ? (
+                <SvgText key={`${l}-${i}`} x={x(i)} y={height - 6} fontSize={fontSize} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : 'middle'}>
                   {l}
                 </SvgText>
               ) : null,
             )}
-            <SvgText x={x(n - 1)} y={height - 6} fontSize={11} fill={colors.textMuted} textAnchor="end">
+            <SvgText x={x(n - 1)} y={height - 6} fontSize={fontSize} fill={colors.textMuted} textAnchor="end">
               {labels[n - 1]}
             </SvgText>
             {series.map(s => (
@@ -126,6 +131,7 @@ export function AreaChart({labels, series, format, caption, height = 210}: {labe
 const styles = StyleSheet.create({
   readout: {gap: 2, marginBottom: 10},
   readRow: {flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 4},
-  readItem: {flexDirection: 'row', alignItems: 'center', gap: 6},
+  readItem: {flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1, maxWidth: '100%'},
+  readLabel: {flexShrink: 1},
   key: {width: 14, height: 3, borderRadius: 2},
 });

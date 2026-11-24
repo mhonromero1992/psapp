@@ -66,11 +66,13 @@ export function RadioCards<T extends string>({value, onChange, options, label}: 
             accessibilityLabel={[o.label, o.description, o.aside].filter(Boolean).join(', ')}
             style={({pressed}) => [
               styles.card,
-              {backgroundColor: on ? colors.primarySoft : pressed ? colors.panel2 : colors.panel, borderColor: on ? colors.primary : colors.line, borderWidth: on ? 2 : 1.5, opacity: o.disabled ? 0.5 : 1},
+              {backgroundColor: on ? colors.primarySoft : o.disabled || pressed ? colors.panel2 : colors.panel, borderColor: on ? colors.primary : colors.line, borderWidth: on ? 2 : 1.5},
             ]}>
-            {o.icon ? <Icon name={o.icon} size={28} weight="duotone" color={colors.primaryText} /> : null}
+            {o.icon ? <Icon name={o.icon} size={28} weight="duotone" color={o.disabled ? colors.textMuted : colors.primaryText} /> : null}
             <View style={styles.flex}>
-              <Txt variant="bodyStrong">{o.label}</Txt>
+              <Txt variant="bodyStrong" color={o.disabled ? 'soft' : 'text'}>
+                {o.label}
+              </Txt>
               {o.description ? (
                 <Txt variant="small" color="soft">
                   {o.description}
@@ -82,7 +84,11 @@ export function RadioCards<T extends string>({value, onChange, options, label}: 
                 {o.aside}
               </Txt>
             ) : null}
-            <View style={[styles.radio, {borderColor: on ? colors.primary : colors.lineStrong}, on && {backgroundColor: colors.primary}]}>{on ? <Icon name="check" size={15} color="#fff" weight="bold" /> : null}</View>
+            {o.disabled ? (
+              <Icon name="lock" size={20} color={colors.textMuted} weight="bold" />
+            ) : (
+              <View style={[styles.radio, {borderColor: on ? colors.primary : colors.lineStrong}, on && {backgroundColor: colors.primary}]}>{on ? <Icon name="check" size={15} color="#fff" weight="bold" /> : null}</View>
+            )}
           </Pressable>
         );
       })}

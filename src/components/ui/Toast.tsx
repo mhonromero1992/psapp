@@ -6,10 +6,16 @@ import {useUi, type ToastItem} from '../../store/ui';
 import {Icon} from './Icon';
 import {Txt} from './Txt';
 
-/** Short confirmations at the top, readable for five seconds, announced to screen readers. */
-export function ToastHost() {
+/**
+ * Short confirmations at the top, readable for five seconds, announced to screen readers. The app
+ * renders one host; each open sheet or dialog renders its own (`inModal`), because a Modal covers
+ * everything beneath it. Only the top-most layer shows the toasts.
+ */
+export function ToastHost({inModal = false}: {inModal?: boolean}) {
   const toasts = useUi(s => s.toasts);
+  const covered = useUi(s => s.modals.length > 0);
   const insets = useSafeAreaInsets();
+  if (!inModal && covered) {return null;}
   return (
     <View pointerEvents="box-none" style={[styles.host, {top: insets.top + 8}]}>
       {toasts.map(t => (

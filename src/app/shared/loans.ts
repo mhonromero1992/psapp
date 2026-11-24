@@ -110,7 +110,7 @@ export function loanUpcoming(l: Loan, p: LoanProduct, t: TFn, lang: Lang): strin
   const firstPay = t(`First salary deduction, ${first} payroll`, `Unang kaltas sa sahod, ${first}`);
   switch (l.status) {
     case 'submitted':
-      return [t(`Credit evaluation, within ${p.processingDays} working days`, `Credit evaluation, sa loob ng ${p.processingDays} araw ng trabaho`), approval, release, firstPay];
+      return [t(`Credit evaluation, within ${p.processingDays === 1 ? 'one working day' : `${p.processingDays} working days`}`, `Credit evaluation, sa loob ng ${p.processingDays === 1 ? 'isang araw' : `${p.processingDays} araw`} ng trabaho`), approval, release, firstPay];
     case 'evaluation':
       return [approval, release, firstPay];
     case 'approved':

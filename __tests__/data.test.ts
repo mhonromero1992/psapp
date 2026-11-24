@@ -1,3 +1,4 @@
+import {loanStatusLabel} from '../src/data/generate';
 import {TODAY} from '../src/lib/format';
 import {useDB} from '../src/store/db';
 import {DEMO_MEMBER} from '../src/store/session';
@@ -23,6 +24,19 @@ describe('sample data', () => {
       if (l.status === 'paid') {expect([l.id, l.balance, l.paidInstallments]).toEqual([l.id, 0, l.termMonths]);}
       else {expect(l.paidInstallments).toBeLessThanOrEqual(l.termMonths);}
     }
+  });
+
+  test("a released loan's date is the day its history shows the release, and its payout agrees", () => {
+    for (const l of db().loans.filter(x => x.releasedAt)) {
+      const released = l.timeline.find(e => e.label === loanStatusLabel('released'));
+      if (released) expect([l.id, l.releasedAt]).toEqual([l.id, released.at]);
+      const payout = db().payouts.find(po => po.refId === l.id && po.kind === 'Loan proceeds');
+      if (payout) expect([l.id, payout.createdAt]).toEqual([l.id, l.releasedAt]);
+    }
+  });
+
+  test('account numbers are masked the same way everywhere', () => {
+    for (const l of db().loans) if (l.payoutLabel && !l.payoutLabel.startsWith('Cheque')) expect(l.payoutLabel).toMatch(/ •••• \d{4}$/);
   });
 
   test('no loan or claim history is dated after today', () => {

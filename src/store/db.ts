@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { appStorage } from './storage';
-import { TODAY, amortization } from '@/lib/format';
+import { TODAY, amortization, maskAccount } from '@/lib/format';
 import { pad } from '@/lib/random';
 import { generateAll, memberName } from '@/data/generate';
 import { BENEFIT_BY_ID, LOAN_PRODUCT_BY_ID } from '@/data/reference';
@@ -138,7 +138,7 @@ const CLAIM_LABEL: Record<ClaimStatus, string> = {
 
 const accountLabel = (m: Member | undefined, accountId: string | null) => {
   const acct = m?.payoutAccounts.find((a) => a.id === accountId) ?? m?.payoutAccounts.find((a) => a.primary);
-  return acct ? `${acct.provider} ${acct.accountNo.replace(/\s/g, '').slice(-4).padStart(8, '•')}` : 'Cheque at your RSO';
+  return acct ? `${acct.provider} ${maskAccount(acct.accountNo)}` : 'Cheque at your RSO';
 };
 
 export const useDB = create<DBState>()(
@@ -314,7 +314,10 @@ export const useDB = create<DBState>()(
     },
     {
       name: 'psaccess.member-db',
-      version: 1,
+      // 2: release dates follow the loan history and account numbers read "•••• 1234". Older stored
+      // sample data is replaced with the new sample data once.
+      version: 2,
+      migrate: () => ({}),
       storage: appStorage,
       partialize: (s) => ({
         memberOverrides: s.memberOverrides, loans: s.loans, claims: s.claims, enrolments: s.enrolments, payouts: s.payouts,

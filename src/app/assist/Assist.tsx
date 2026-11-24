@@ -125,6 +125,7 @@ export default function Assist() {
             <>
               {requestsSection}
               {servicesSection}
+              <HelpLink topic="Something else" />
             </>
           ) : (
             <>
@@ -132,7 +133,6 @@ export default function Assist() {
               {requestsSection}
             </>
           )}
-          <HelpLink topic="Something else" />
         </View>
       )}
 
@@ -290,7 +290,7 @@ function RequestSheet({open, onClose, preset}: {open: boolean; onClose: () => vo
       open={open}
       onClose={onClose}
       title={sent ? t('Request sent', 'Naipadala ang request') : t('Request assistance', 'Humingi ng tulong')}
-      subtitle={sent ? undefined : t('The Legal & Travel Desk reads every request.', 'Binabasa ng Legal & Travel Desk ang bawat request.')}
+      subtitle={sent ? undefined : t('Tell us what you need. The Legal & Travel Desk will call you.', 'Sabihin ang kailangan mo. Tatawagan ka ng Legal & Travel Desk.')}
       footer={
         sent ? undefined : (
           <>

@@ -477,7 +477,8 @@ export default function ClaimNew() {
                         photos={photos}
                         onChange={p => {
                           setDocs(prev => ({...prev, [d]: p}));
-                          if (p.length && missingDocs.length <= 1) {
+                          // The error goes once every paper has at least one photo.
+                          if (p.length && missingDocs.every(x => x === d)) {
                             clear('docs');
                           }
                         }}

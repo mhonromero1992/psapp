@@ -34,9 +34,11 @@ export function SectionHead({title, action, count}: {title: string; action?: Rea
   );
 }
 
-/** A tappable two-line list row: at least 64dp, the whole row is the target. */
-export function ListRow({title, subtitle, icon, right, onPress, accessibilityHint, tone}: {title: string; subtitle?: string; icon?: IconName; right?: React.ReactNode; onPress?: () => void; accessibilityHint?: string; tone?: Tone}) {
-  const {colors} = useTheme();
+/** A tappable two-line list row: at least 68dp, the whole row is the target. */
+export function ListRow({title, subtitle, icon, right, rightLabel, onPress, accessibilityHint, tone}: {title: string; subtitle?: string; icon?: IconName; right?: React.ReactNode; rightLabel?: string; onPress?: () => void; accessibilityHint?: string; tone?: Tone}) {
+  const {colors, scale} = useTheme();
+  // At Large and Extra large text, what sits on the right moves under the words instead of squeezing them.
+  const stack = scale > 1 && Boolean(right);
   const body = (
     <>
       {icon && (
@@ -47,14 +49,23 @@ export function ListRow({title, subtitle, icon, right, onPress, accessibilityHin
       <View style={styles.flex}>
         <Txt variant="bodyStrong">{title}</Txt>
         {subtitle ? <Txt variant="small" color="soft">{subtitle}</Txt> : null}
+        {stack ? <View style={styles.rightBelow}>{right}</View> : null}
       </View>
-      {right}
-      {onPress && !right ? <Icon name="chevron" size={18} color={colors.textMuted} weight="bold" /> : null}
+      {stack ? null : right}
+      {onPress && (!right || stack) ? <Icon name="chevron" size={18} color={colors.textMuted} weight="bold" /> : null}
     </>
   );
-  if (!onPress) {return <View style={styles.row}>{body}</View>;}
+  // The amount or badge on the right is read out too (rightLabel).
+  const label = [title, subtitle, rightLabel].filter(Boolean).join(', ');
+  if (!onPress) {
+    return (
+      <View style={styles.row} accessible={Boolean(rightLabel)} accessibilityLabel={rightLabel ? label : undefined}>
+        {body}
+      </View>
+    );
+  }
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={subtitle ? `${title}, ${subtitle}` : title} accessibilityHint={accessibilityHint} style={({pressed}) => [styles.row, pressed && {backgroundColor: colors.panel2}]}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} accessibilityHint={accessibilityHint} style={({pressed}) => [styles.row, pressed && {backgroundColor: colors.panel2}]}>
       {body}
     </Pressable>
   );
@@ -136,6 +147,7 @@ const styles = StyleSheet.create({
   headTitle: {flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 140},
   flex: {flex: 1},
   row: {flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 12, paddingHorizontal: 16},
+  rightBelow: {marginTop: 6, alignItems: 'flex-start'},
   rowIcon: {width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center'},
   badge: {flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8},
   track: {height: 10, borderRadius: 999, overflow: 'hidden'},

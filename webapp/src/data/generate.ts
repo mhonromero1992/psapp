@@ -1,4 +1,4 @@
-import { amortization, TODAY } from "@/lib/format";
+import { amortization, maskAccount, TODAY } from "@/lib/format";
 import { chance, int, mulberry32, pad, pick, weighted, type Rng } from "@/lib/random";
 import {
   AGENCY_WEIGHTS, BANKS, BENEFIT_BY_ID, EWALLETS, LOAN_PRODUCTS, LOAN_PRODUCT_BY_ID, MEP_RATE, OFFICES, RANKS,
@@ -362,7 +362,7 @@ export function generateLoans(members: Member[]): Loan[] {
       channel: weighted(r, [["Member App", 0.55], ["Member portal", 0.15], ["RSO counter", 0.3]] as const),
       officeId: m.officeId,
       payoutAccountId: acct?.id ?? null,
-      payoutLabel: acct ? `${acct.provider} ${acct.accountNo.replace(/\s/g, "").slice(-4).padStart(8, "•")}` : "Cheque at RSO",
+      payoutLabel: acct ? `${acct.provider} ${maskAccount(acct.accountNo)}` : "Cheque at RSO",
       releasedAt: released ? iso(addDays(new Date(appliedAt), p.processingDays + 1)) : null,
       paidInstallments,
       balance,
@@ -372,6 +372,9 @@ export function generateLoans(members: Member[]): Loan[] {
       risk: weighted(r, [["low", 0.7], ["medium", 0.24], ["high", 0.06]] as const),
       ...overrides,
     };
+    // The release date is the day the history says the money was released (the payout uses it too).
+    const releasedEvent = loan.releasedAt ? loan.timeline.find((e) => e.label === LOAN_LABEL.released) : undefined;
+    if (releasedEvent) loan.releasedAt = releasedEvent.at;
     if (loan.status === "paid") {
       loan.paidInstallments = loan.termMonths;
       loan.balance = 0;
@@ -481,7 +484,7 @@ export function generateClaims(members: Member[]): Claim[] {
       confinementDays: days,
       hospital: days ? pick(r, HOSPITALS) : undefined,
       assignee,
-      payoutLabel: acct ? `${acct.provider} ${acct.accountNo.replace(/\s/g, "").slice(-4).padStart(8, "•")}` : "Cheque at RSO",
+      payoutLabel: acct ? `${acct.provider} ${maskAccount(acct.accountNo)}` : "Cheque at RSO",
       officeId: m.officeId,
       ...overrides,
     };

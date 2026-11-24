@@ -139,7 +139,7 @@ export default function Payouts() {
             )}
           </View>
 
-          <HelpLink topic="Payouts" />
+          {accounts.length > 0 && history.length > 0 ? <HelpLink topic="Payouts" /> : null}
         </View>
       )}
 
