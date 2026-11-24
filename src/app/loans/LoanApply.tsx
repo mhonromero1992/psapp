@@ -277,7 +277,7 @@ export default function LoanApply() {
   const footer = load.ready ? (
     <View style={styles.footerRow}>
       {step > 0 ? <Button title={t('Back', 'Bumalik')} variant="quiet" block={false} style={styles.back} onPress={() => go(step - 1)} testID="apply-back" /> : null}
-      <Button title={last ? t('Send application', 'Ipadala ang application') : t('Continue', 'Magpatuloy')} iconRight="forward" block={false} style={styles.continue} onPress={next} testID="apply-next" />
+      <Button title={last ? t('Send application', 'Ipadala ang application') : t('Continue', 'Magpatuloy')} iconRight={last ? undefined : 'forward'} block={false} style={styles.continue} onPress={next} testID="apply-next" />
     </View>
   ) : undefined;
 

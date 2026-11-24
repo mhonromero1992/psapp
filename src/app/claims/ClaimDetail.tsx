@@ -71,7 +71,7 @@ export default function ClaimDetail() {
               body={t(`There is no claim ${id} on your record. Check the claim number and try again.`, `Walang claim na ${id} sa iyong record. Pakisuri ang claim number at subukan ulit.`)}
               action={
                 <>
-                  <Button title={t('Go to my claims', 'Pumunta sa aking mga claim')} icon="claims" onPress={() => nav.navigate('Main', {screen: 'Claims'})} />
+                  <Button title={t('Go to my claims', 'Pumunta sa aking mga claim')} icon="claims" onPress={() => nav.popTo('Main', {screen: 'Claims'})} />
                   <View style={styles.center}>
                     <HelpLink topic="Claims" />
                   </View>
@@ -159,7 +159,7 @@ export default function ClaimDetail() {
             <Txt variant="body">
               {t(`What happens next: we check it within 2 working days and tell you in this app. Your claim number is ${claim.id}.`, `Susunod: susuriin namin ito sa loob ng 2 araw ng trabaho at sasabihan ka sa app na ito. Ang claim number mo ay ${claim.id}.`)}
             </Txt>
-            <Button title={t('Back to Home', 'Bumalik sa Home')} icon="home" onPress={() => nav.navigate('Main', {screen: 'Home'})} />
+            <Button title={t('Back to Home', 'Bumalik sa Home')} icon="home" onPress={() => nav.popTo('Main', {screen: 'Home'})} />
           </Card>
         ) : null}
 

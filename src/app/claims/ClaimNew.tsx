@@ -256,7 +256,7 @@ export default function ClaimNew() {
   if (done) {
     return (
       <Screen key="done" helpTopic="Claims">
-        <Filed claim={done} onHome={() => nav.navigate('Main', {screen: 'Home'})} onTrack={() => nav.replace('ClaimDetail', {id: done.id})} />
+        <Filed claim={done} onHome={() => nav.popTo('Main', {screen: 'Home'})} onTrack={() => nav.replace('ClaimDetail', {id: done.id})} />
       </Screen>
     );
   }

@@ -117,7 +117,7 @@ export default function Equity() {
               value={range}
               onChange={setRange}
               options={[
-                {value: '12m', label: t('12 months', '12 buwan')},
+                {value: '12m', label: t('12 months', '1 taon')},
                 {value: '5y', label: t('5 years', '5 taon')},
                 {value: 'all', label: t('All', 'Lahat')},
               ]}
@@ -126,7 +126,7 @@ export default function Equity() {
               labels={hist.map(h => axisLabel(h.period, lang))}
               series={[
                 {key: 'equity', label: t('Equity Value', 'Equity Value'), slot: '2', values: hist.map(h => h.equity), area: true},
-                {key: 'contributed', label: t('Total you contributed', 'Kabuuang iniambag mo'), slot: 'ref', values: hist.map(h => h.contributed)},
+                {key: 'contributed', label: t('Total contributed', 'Kabuuang iniambag'), slot: 'ref', values: hist.map(h => h.contributed)},
               ]}
               format={v => money(v)}
               caption={t('Equity Value and total contributed over time', 'Equity Value at kabuuang iniambag sa paglipas ng panahon')}
