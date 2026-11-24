@@ -1,7 +1,7 @@
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, type NavigationAction} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import React, {useEffect, useMemo, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {AccessibilityInfo, StyleSheet, View, type LayoutChangeEvent, type ScrollView} from 'react-native';
 import {useTheme} from 'styled-components/native';
 import {Button, Card, Checkbox, DateField, Dialog, Divider, ErrorState, Icon, LoadingBlock, money, PhotoPicker, RadioCards, Screen, StepHeader, TextField, Txt, type Photo, type RadioOption} from '../../components/ui';
 import {memberName} from '../../data/generate';
@@ -21,6 +21,10 @@ import {DayStepper, GroupError, localDay, Notice, RELATION} from './parts';
 type Field = 'type' | 'filer' | 'date' | 'hospital' | 'days' | 'severity' | 'description' | 'docs' | 'account' | 'certify';
 type Errors = Partial<Record<Field, string>>;
 
+const FULL_DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** Errors shown under a group of cards: scroll so the cards above stay in view too. */
+const BELOW: Field[] = ['type', 'filer', 'account'];
+
 /**
  * File a claim in six calm steps: the benefit, who files, what happened, photos of the papers,
  * where the money goes, and a review. Answers are kept when going back; nothing is sent until
@@ -38,6 +42,14 @@ export default function ClaimNew() {
   const today = localDay(nowMs());
   const joined = member.joinedAt.slice(0, 10);
 
+  // Scrolling: back to the top on a new step; down to the first problem on Continue.
+  const scrollRef = useRef<ScrollView>(null);
+  const formY = useRef(0);
+  const ys = useRef<Record<string, number>>({});
+  const at = (k: string) => (e: LayoutChangeEvent) => {
+    ys.current[k] = e.nativeEvent.layout.y;
+  };
+
   const [step, setStep] = useState(0);
   const [type, setType] = useState<ClaimType | ''>('');
   const [filer, setFiler] = useState('');
@@ -54,6 +66,10 @@ export default function ClaimNew() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<Claim | null>(null);
+  // Leaving with answers filled in asks first.
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const leaving = useRef(false);
+  const pending = useRef<NavigationAction | null>(null);
 
   const b = type ? BENEFIT_BY_ID[type] : null;
   const hospitalType = type === 'AHB' || type === 'IHB';
@@ -65,22 +81,57 @@ export default function ClaimNew() {
   const claimant = filer === 'member' ? {name: memberName(member), relation: 'Member' as const} : ben ? {name: ben.name, relation: ben.relation} : null;
   const account = member.payoutAccounts.find(a => a.id === accountId);
   const accountLabel = account ? `${account.provider} ${maskAccount(account.accountNo)}` : member.payoutAccounts.length ? t('Your primary account', 'Ang iyong primary account') : t('A cheque at your branch', 'Cheke sa iyong sangay');
+  const dirty = Boolean(type || incidentDate || hospital || days || severity || description || Object.values(docs).some(p => p.length) || certify);
 
   const STEPS = [t('Type of claim', 'Uri ng claim'), t('Who is filing', 'Sino ang nagfa-file'), t('What happened', 'Ano ang nangyari'), t('Documents', 'Mga dokumento'), t('Where to send', 'Saan ipapadala'), t('Review', 'Suriin')];
   const last = step === STEPS.length - 1;
 
-  // The Back button in the top bar and the phone's back button go one step back, like the
-  // Back button at the bottom, instead of throwing the answers away.
-  useEffect(() => {
-    return nav.addListener('beforeRemove', e => {
-      if (done || step === 0) {
-        return;
-      }
-      e.preventDefault();
-      setErrors({});
-      setStep(s => Math.max(0, s - 1));
-    });
-  }, [nav, step, done]);
+  const go = useCallback((n: number) => {
+    setErrors({});
+    setStep(n);
+    scrollRef.current?.scrollTo({y: 0, animated: false});
+  }, []);
+
+  // Android back and the iOS swipe: a step back inside the flow, and a question before leaving it.
+  useEffect(
+    () =>
+      nav.addListener('beforeRemove', e => {
+        if (done || leaving.current) {
+          return;
+        }
+        if (step > 0) {
+          e.preventDefault();
+          go(step - 1);
+          return;
+        }
+        if (!dirty) {
+          return;
+        }
+        e.preventDefault();
+        pending.current = e.data.action;
+        setLeaveOpen(true);
+      }),
+    [nav, step, done, dirty, go],
+  );
+
+  const cancel = () => {
+    if (!dirty) {
+      leaving.current = true;
+      nav.goBack();
+      return;
+    }
+    pending.current = null;
+    setLeaveOpen(true);
+  };
+  const leave = () => {
+    leaving.current = true;
+    setLeaveOpen(false);
+    if (pending.current) {
+      nav.dispatch(pending.current);
+    } else {
+      nav.goBack();
+    }
+  };
 
   const clear = (k: Field) => setErrors(e => (e[k] ? {...e, [k]: undefined} : e));
 
@@ -112,7 +163,7 @@ export default function ClaimNew() {
       if (type !== 'MER') {
         if (!incidentDate) {
           e.date = t('Choose the date.', 'Piliin ang petsa.');
-        } else if (!/^\d{4}-\d{2}-\d{2}$/.test(incidentDate)) {
+        } else if (!FULL_DATE.test(incidentDate)) {
           e.date = t('Choose the month, the day and the year.', 'Piliin ang buwan, araw at taon.');
         } else if (incidentDate > today) {
           e.date = t('The date cannot be in the future.', 'Hindi puwedeng petsa sa hinaharap.');
@@ -152,18 +203,22 @@ export default function ClaimNew() {
     return e;
   };
 
-  const go = (to: number) => {
-    setErrors({});
-    setStep(to);
-  };
   const next = () => {
     const e = validate(step);
     setErrors(e);
-    if (Object.keys(e).length) {
+    const keys = Object.keys(e) as Field[];
+    if (keys.length) {
+      const k = keys[0];
+      const y = ys.current[k === 'docs' ? `doc:${missingDocs[0]}` : k] ?? 0;
+      scrollRef.current?.scrollTo({y: Math.max(0, formY.current + y - (BELOW.includes(k) ? 280 : 12)), animated: true});
+      AccessibilityInfo.announceForAccessibility(
+        keys.length === 1 ? t(`One answer needs fixing: ${e[k]}`, `May isang sagot na kailangang ayusin: ${e[k]}`) : t(`${keys.length} answers need fixing. The first: ${e[k]}`, `${keys.length} sagot ang kailangang ayusin. Ang una: ${e[k]}`),
+      );
       return;
     }
     if (!last) {
-      return go(step + 1);
+      go(step + 1);
+      return;
     }
     setConfirmOpen(true);
   };
@@ -261,25 +316,33 @@ export default function ClaimNew() {
     description: [`${a.kind === 'bank' ? t('Bank account', 'Bank account') : t('E-wallet', 'E-wallet')} ${maskAccount(a.accountNo)}`, a.primary ? t('Your primary account', 'Ang iyong primary account') : '', a.verified ? '' : t('Still being checked', 'Sinusuri pa')].filter(Boolean).join('\n'),
     disabled: !a.verified,
   }));
-
-  const firstError = Object.values(errors).find(Boolean);
-  const footer = (
-    <>
-      {firstError ? <GroupError text={firstError} /> : null}
-      <View style={styles.footRow}>
-        {step > 0 ? <Button title={t('Back', 'Bumalik')} icon="back" variant="quiet" onPress={() => go(step - 1)} style={styles.backBtn} testID="claim-back" /> : null}
-        <Button title={last ? t('File this claim', 'I-file ang claim') : t('Continue', 'Magpatuloy')} icon={last ? 'check' : undefined} iconRight={last ? undefined : 'forward'} onPress={next} style={styles.nextBtn} testID="claim-next" />
-      </View>
-    </>
-  );
+  const dayWords = (n: number) => (n === 1 ? t('1 day', '1 araw') : t(`${n} days`, `${n} araw`));
+  const photoWords = (n: number) => (n === 1 ? t('1 photo', '1 litrato') : t(`${n} photos`, `${n} litrato`));
 
   return (
-    <>
-      <Screen key={`step-${step}`} helpTopic="Claims" lead={<StepHeader step={step} total={STEPS.length} title={STEPS[step]} />} title={heads[step][0]} subtitle={heads[step][1]} footer={footer}>
+    <Screen
+      scrollRef={scrollRef}
+      onCancel={cancel}
+      helpTopic="Claims"
+      lead={<StepHeader step={step} total={STEPS.length} title={STEPS[step]} />}
+      title={heads[step][0]}
+      subtitle={heads[step][1]}
+      footer={
+        <View style={styles.footRow}>
+          {step > 0 ? <Button title={t('Back', 'Bumalik')} icon="back" variant="quiet" onPress={() => go(step - 1)} style={styles.backBtn} testID="claim-back" /> : null}
+          <Button title={last ? t('File this claim', 'I-file ang claim') : t('Continue', 'Magpatuloy')} icon={last ? 'check' : undefined} iconRight={last ? undefined : 'forward'} onPress={next} style={styles.nextBtn} testID="claim-next" />
+        </View>
+      }>
+      <View
+        onLayout={e => {
+          formY.current = e.nativeEvent.layout.y;
+        }}>
         {step === 0 && (
           <View style={styles.gap}>
             <RadioCards label={STEPS[0]} value={type} onChange={chooseType} options={typeOptions} />
-            <GroupError text={errors.type} />
+            <View onLayout={at('type')}>
+              <GroupError text={errors.type} />
+            </View>
           </View>
         )}
 
@@ -294,53 +357,61 @@ export default function ClaimNew() {
               }}
               options={filerOptions}
             />
-            <GroupError text={errors.filer} />
+            <View onLayout={at('filer')}>
+              <GroupError text={errors.filer} />
+            </View>
           </View>
         )}
 
         {step === 2 && b && type && estimate && (
           <View style={styles.form}>
             {type !== 'MER' && (
-              <DateField
-                label={incidentLabel(type, t)}
-                value={incidentDate}
-                onChange={v => {
-                  setIncidentDate(v);
-                  clear('date');
-                }}
-                error={errors.date}
-                fromYear={Number(joined.slice(0, 4))}
-                toYear={Number(today.slice(0, 4))}
-              />
+              <View onLayout={at('date')}>
+                <DateField
+                  label={incidentLabel(type, t)}
+                  value={incidentDate}
+                  onChange={v => {
+                    setIncidentDate(v);
+                    clear('date');
+                  }}
+                  error={errors.date}
+                  fromYear={Number(joined.slice(0, 4))}
+                  toYear={Number(today.slice(0, 4))}
+                />
+              </View>
             )}
             {hospitalType && (
               <>
-                <TextField
-                  label={t('Hospital', 'Ospital')}
-                  hint={t('As written on your certificate of confinement.', 'Ayon sa nakasulat sa certificate of confinement.')}
-                  value={hospital}
-                  onChangeText={v => {
-                    setHospital(v);
-                    clear('hospital');
-                  }}
-                  error={errors.hospital}
-                  autoCapitalize="words"
-                  autoComplete="off"
-                />
-                <DayStepper
-                  label={t('Days in the hospital', 'Ilang araw sa ospital')}
-                  hint={t('Count the nights you were confined. The benefit counts up to 10 days.', 'Bilangin ang mga gabing naka-confine ka. Hanggang 10 araw ang binabayaran.')}
-                  value={days}
-                  onChange={v => {
-                    setDays(v);
-                    clear('days');
-                  }}
-                  error={errors.days}
-                />
+                <View onLayout={at('hospital')}>
+                  <TextField
+                    label={t('Hospital', 'Ospital')}
+                    hint={t('As written on your certificate of confinement.', 'Ayon sa nakasulat sa certificate of confinement.')}
+                    value={hospital}
+                    onChangeText={v => {
+                      setHospital(v);
+                      clear('hospital');
+                    }}
+                    error={errors.hospital}
+                    autoCapitalize="words"
+                    autoComplete="off"
+                  />
+                </View>
+                <View onLayout={at('days')}>
+                  <DayStepper
+                    label={t('Days in the hospital', 'Ilang araw sa ospital')}
+                    hint={t('Count the nights you were confined. The benefit counts up to 10 days.', 'Bilangin ang mga gabing naka-confine ka. Hanggang 10 araw ang binabayaran.')}
+                    value={days}
+                    onChange={v => {
+                      setDays(v);
+                      clear('days');
+                    }}
+                    error={errors.days}
+                  />
+                </View>
               </>
             )}
             {type === 'WIA' && (
-              <View style={styles.gap}>
+              <View style={styles.gap} onLayout={at('severity')}>
                 <Txt variant="label">{t('How serious is the injury?', 'Gaano kalubha ang pinsala?')}</Txt>
                 <RadioCards
                   label={t('How serious is the injury?', 'Gaano kalubha ang pinsala?')}
@@ -369,18 +440,20 @@ export default function ClaimNew() {
               </View>
             </Card>
             {type !== 'MER' && (
-              <TextField
-                label={t('Tell us briefly what happened', 'Ikuwento nang maikli ang nangyari')}
-                value={description}
-                onChangeText={v => {
-                  setDescription(v);
-                  clear('description');
-                }}
-                error={errors.description}
-                multiline
-                maxLength={400}
-                style={styles.multi}
-              />
+              <View onLayout={at('description')}>
+                <TextField
+                  label={t('Tell us briefly what happened', 'Ikuwento nang maikli ang nangyari')}
+                  value={description}
+                  onChangeText={v => {
+                    setDescription(v);
+                    clear('description');
+                  }}
+                  error={errors.description}
+                  multiline
+                  maxLength={400}
+                  style={styles.multi}
+                />
+              </View>
             )}
           </View>
         )}
@@ -397,10 +470,10 @@ export default function ClaimNew() {
                 {requiredDocs.map(d => {
                   const photos = docs[d] ?? [];
                   return (
-                    <View key={d} style={styles.gapSm}>
+                    <View key={d} style={styles.gapSm} onLayout={at(`doc:${d}`)}>
                       <PhotoPicker
                         label={docName(d, lang)}
-                        hint={photos.length ? t(`${photos.length} ${photos.length === 1 ? 'photo' : 'photos'} added`, `${photos.length} litrato ang naidagdag`) : t('A clear photo in good light', 'Malinaw na litrato sa maliwanag na lugar')}
+                        hint={photos.length ? t(`${photoWords(photos.length)} added`, `${photoWords(photos.length)} ang naidagdag`) : t('A clear photo in good light', 'Malinaw na litrato sa maliwanag na lugar')}
                         photos={photos}
                         onChange={p => {
                           setDocs(prev => ({...prev, [d]: p}));
@@ -436,7 +509,9 @@ export default function ClaimNew() {
                 options={accountOptions}
               />
             )}
-            <GroupError text={errors.account} />
+            <View onLayout={at('account')}>
+              <GroupError text={errors.account} />
+            </View>
           </View>
         )}
 
@@ -446,32 +521,35 @@ export default function ClaimNew() {
               <ReviewRow label={t('Claim', 'Claim')} value={t(b.name, b.nameFil)} onChange={() => go(0)} first />
               <ReviewRow label={t('Filed by', 'Isinampa ni')} value={claimant ? `${claimant.name}${claimant.relation === 'Member' ? '' : ` (${t(...RELATION[claimant.relation])})`}` : ''} onChange={() => go(1)} />
               {type !== 'MER' && <ReviewRow label={incidentLabel(type, t)} value={incidentDate ? date(incidentDate) : ''} onChange={() => go(2)} />}
-              {hospitalType && <ReviewRow label={t('Hospital', 'Ospital')} value={`${hospital.trim()} · ${days === 1 ? t('1 day', '1 araw') : t(`${days} days`, `${days} araw`)}`} onChange={() => go(2)} />}
+              {hospitalType && <ReviewRow label={t('Hospital', 'Ospital')} value={hospital.trim()} onChange={() => go(2)} />}
+              {hospitalType && <ReviewRow label={t('Days in the hospital', 'Ilang araw sa ospital')} value={dayWords(days)} onChange={() => go(2)} />}
               {type === 'WIA' && <ReviewRow label={t('How serious', 'Gaano kalubha')} value={severity === 'major' ? t('Major injury', 'Malubhang pinsala') : t('Minor injury', 'Hindi malubha')} onChange={() => go(2)} />}
-              {requiredDocs.length > 0 && <ReviewRow label={t('Documents', 'Mga dokumento')} value={fileCount === 1 ? t('1 photo', '1 litrato') : t(`${fileCount} photos`, `${fileCount} litrato`)} onChange={() => go(3)} />}
+              {requiredDocs.length > 0 && <ReviewRow label={t('Documents', 'Mga dokumento')} value={photoWords(fileCount)} onChange={() => go(3)} />}
               <ReviewRow label={t('Money goes to', 'Ipapadala sa')} value={accountLabel} onChange={() => go(4)} />
               <ReviewRow label={t('Amount claimed', 'Halagang kini-claim')} value={money(estimate.amount)} big />
             </Card>
-            <Card tone="inset" style={[styles.gap, {backgroundColor: colors.primarySoft}]}>
-              <Checkbox
-                checked={certify}
-                onChange={v => {
-                  setCertify(v);
-                  if (v) {
-                    clear('certify');
-                  }
-                }}
-                label={t('I certify that the information and documents I gave are true and correct.', 'Pinatutunayan ko na totoo at tama ang impormasyon at mga dokumentong ibinigay ko.')}
-              />
-              <GroupError text={errors.certify} />
-            </Card>
+            <View onLayout={at('certify')}>
+              <Card tone="inset" style={[styles.gap, {backgroundColor: colors.primarySoft}]}>
+                <Checkbox
+                  checked={certify}
+                  onChange={v => {
+                    setCertify(v);
+                    if (v) {
+                      clear('certify');
+                    }
+                  }}
+                  label={t('I certify that the information and documents I gave are true and correct.', 'Pinatutunayan ko na totoo at tama ang impormasyon at mga dokumentong ibinigay ko.')}
+                />
+                <GroupError text={errors.certify} />
+              </Card>
+            </View>
           </View>
         )}
+      </View>
 
-        <View style={styles.help}>
-          <HelpLink topic="Claims" />
-        </View>
-      </Screen>
+      <View style={styles.help}>
+        <HelpLink topic="Claims" />
+      </View>
 
       <Dialog
         open={confirmOpen}
@@ -495,14 +573,35 @@ export default function ClaimNew() {
             <Txt variant="amountLarge">{money(estimate.amount)}</Txt>
             <Txt variant="bodyStrong">{t(b.name, b.nameFil)}</Txt>
             <Txt variant="body" color="soft">
-              {t(`To ${accountLabel} once approved`, `Sa ${accountLabel} kapag naaprubahan`)}
-              {requiredDocs.length > 0 ? ` · ${fileCount === 1 ? t('1 document photo', '1 litrato ng dokumento') : t(`${fileCount} document photos`, `${fileCount} litrato ng dokumento`)}` : ''}
+              {t(`To ${accountLabel} once approved.`, `Sa ${accountLabel} kapag naaprubahan.`)}
             </Txt>
-            <Notice tone="neutral" icon="info" text={t('The final amount is set when your claim is approved.', 'Itatakda ang huling halaga kapag naaprubahan ang claim.')} strong={false} />
+            {requiredDocs.length > 0 ? (
+              <Txt variant="body" color="soft">
+                {t(`${photoWords(fileCount)} of your documents attached.`, `${photoWords(fileCount)} ng iyong mga dokumento ang nakalakip.`)}
+              </Txt>
+            ) : null}
+            <View style={styles.dialogNote}>
+              <Notice tone="neutral" icon="info" text={t('The final amount is set when your claim is approved.', 'Itatakda ang huling halaga kapag naaprubahan ang claim.')} strong={false} />
+            </View>
           </View>
         ) : null}
       </Dialog>
-    </>
+
+      <Dialog
+        open={leaveOpen}
+        onClose={() => setLeaveOpen(false)}
+        title={t('Leave this claim?', 'Iiwan ang claim na ito?')}
+        footer={
+          <>
+            <Button title={t('Keep going', 'Ituloy ang claim')} onPress={() => setLeaveOpen(false)} />
+            <Button title={t('Leave and clear my answers', 'Umalis at burahin ang sagot')} variant="quiet" onPress={leave} testID="claim-leave" />
+          </>
+        }>
+        <Txt variant="body" color="soft">
+          {t('Your answers and photos are not sent yet. If you leave now, you will start again next time.', 'Hindi pa naipapadala ang iyong mga sagot at litrato. Kung aalis ka ngayon, magsisimula ka ulit sa susunod.')}
+        </Txt>
+      </Dialog>
+    </Screen>
   );
 }
 
@@ -596,6 +695,7 @@ const styles = StyleSheet.create({
   help: {marginTop: 18},
   multi: {minHeight: 128, textAlignVertical: 'top'},
   estimate: {gap: 4},
+  dialogNote: {marginTop: 8},
   footRow: {flexDirection: 'row', gap: 10},
   backBtn: {flex: 1},
   nextBtn: {flex: 1.7},

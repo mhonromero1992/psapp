@@ -110,7 +110,7 @@ export function MoneyField({label, value, onChange, error, hint}: {label: string
             onChange(d ? Number(d) : '');
           }}
           maxFontSizeMultiplier={1.4}
-          style={[styles.flex, type.amountLarge, {color: colors.text, paddingVertical: 12}]}
+          style={[styles.flex, styles.moneyInput, type.amountLarge, {color: colors.text}]}
         />
       </View>
     </FieldFrame>
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   pin: {flex: 1, minWidth: 0, letterSpacing: 8},
   eye: {minWidth: 76, borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: 8},
   moneyWrap: {flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 60, borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16},
+  moneyInput: {paddingVertical: 12},
   select: {flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12},
   option: {flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10},
   dateRow: {flexDirection: 'row', gap: 10},

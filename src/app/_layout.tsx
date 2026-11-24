@@ -28,7 +28,7 @@ export default function RootLayout() {
   const user = useSession(s => s.user);
   return (
     <NavigationContainer ref={navigationRef} theme={navTheme(colors)}>
-      <Stack.Navigator screenOptions={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, cardStyle: {backgroundColor: colors.ground}}}>
+      <Stack.Navigator screenOptions={{headerShown: false, headerMode: 'float', cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, cardStyle: {backgroundColor: colors.ground}}}>
         {user ? (
           <>
             <Stack.Screen name="Main" component={Tabs} />

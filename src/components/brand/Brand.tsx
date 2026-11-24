@@ -43,7 +43,7 @@ export function Ribbon({stripes = RIBBONS.brand, width = 30, height = 10}: {stri
   return (
     <View style={[styles.ribbon, {width, height}]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {stripes.map((c, i) => (
-        <View key={`${c}-${i}`} style={{flex: 1, backgroundColor: c}} />
+        <View key={`${c}-${i}`} style={[styles.stripe, {backgroundColor: c}]} />
       ))}
     </View>
   );
@@ -80,5 +80,6 @@ const styles = StyleSheet.create({
   lockup: {flexDirection: 'row', alignItems: 'center', gap: 9},
   word: {letterSpacing: -0.2},
   ribbon: {flexDirection: 'row', borderRadius: 2, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(0,0,0,0.25)'},
+  stripe: {flex: 1},
   ribbonLabel: {flexDirection: 'row', alignItems: 'center', gap: 10},
 });

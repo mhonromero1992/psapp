@@ -17,6 +17,9 @@ import {RiseIn} from '../shared/RiseIn';
 import {CLAIM_STATUS, LOAN_STATUS} from '../shared/status';
 import {ASSIST_STATUS, assistText, monthYear, nowMs, relTime} from '../shared/text';
 
+/** Brand art on the night band: a light green that reads at 11:1 on it. */
+const ON_BAND_OK = '#5fd99a';
+
 const WEEKDAYS = {en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], fil: ['Linggo', 'Lunes', 'Martes', 'Miyerkules', 'Huwebes', 'Biyernes', 'Sabado']};
 const MONTHS = {en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], fil: ['Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre']};
 
@@ -107,13 +110,13 @@ export default function Home() {
               </Txt>
               {addedThisYear > 0 && (
                 <View style={styles.added}>
-                  <Icon name="trend" size={18} color="#5fd99a" weight="bold" />
-                  <Txt variant="smallStrong" style={{color: '#5fd99a'}}>
+                  <Icon name="trend" size={18} color={ON_BAND_OK} weight="bold" />
+                  <Txt variant="smallStrong" style={styles.onBandOk}>
                     {t(`${money(addedThisYear)} added since January`, `${money(addedThisYear)} nadagdag mula Enero`)}
                   </Txt>
                 </View>
               )}
-              <View style={[styles.eqRule, {backgroundColor: 'rgba(255,255,255,0.12)'}]} />
+              <View style={styles.eqRule} />
               <View style={styles.eqFacts}>
                 <View style={styles.flex}>
                   <Txt variant="small" color="onBandMuted">
@@ -285,7 +288,7 @@ export default function Home() {
                   accessibilityRole="button"
                   accessibilityLabel={`${n.read ? '' : t('New. ', 'Bago. ')}${t(n.title, n.titleFil)}`}
                   style={({pressed}) => [styles.note, i > 0 && {borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: colors.line}, pressed && {backgroundColor: colors.panel2}]}>
-                  <View style={[styles.dot, {backgroundColor: n.read ? 'transparent' : colors.primary}]} />
+                  <View style={[styles.dot, !n.read && {backgroundColor: colors.primary}]} />
                   <View style={styles.flex}>
                     <Txt variant={n.read ? 'body' : 'bodyStrong'}>{t(n.title, n.titleFil)}</Txt>
                     <Txt variant="small" color="soft">
@@ -303,6 +306,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  onBandOk: {color: ON_BAND_OK},
   flex: {flex: 1},
   head: {gap: 6, marginBottom: 20, marginTop: 4},
   idRow: {flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 4},
@@ -315,7 +319,7 @@ const styles = StyleSheet.create({
   eqHead: {flexDirection: 'row', alignItems: 'center', gap: 10},
   figure: {marginTop: 6},
   added: {flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, marginTop: 4},
-  eqRule: {height: 1, marginVertical: 12},
+  eqRule: {height: 1, marginVertical: 12, backgroundColor: 'rgba(255,255,255,0.12)'},
   eqFacts: {flexDirection: 'row', gap: 16, flexWrap: 'wrap'},
   eqBtn: {marginTop: 14},
   cover: {flexDirection: 'row', alignItems: 'center', gap: 14},

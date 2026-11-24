@@ -82,7 +82,7 @@ export function RadioCards<T extends string>({value, onChange, options, label}: 
                 {o.aside}
               </Txt>
             ) : null}
-            <View style={[styles.radio, {borderColor: on ? colors.primary : colors.lineStrong, backgroundColor: on ? colors.primary : 'transparent'}]}>{on ? <Icon name="check" size={15} color="#fff" weight="bold" /> : null}</View>
+            <View style={[styles.radio, {borderColor: on ? colors.primary : colors.lineStrong}, on && {backgroundColor: colors.primary}]}>{on ? <Icon name="check" size={15} color="#fff" weight="bold" /> : null}</View>
           </Pressable>
         );
       })}

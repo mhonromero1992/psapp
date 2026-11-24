@@ -1,7 +1,7 @@
-import {useNavigation, usePreventRemove, useRoute, type RouteProp} from '@react-navigation/native';
+import {useNavigation, useRoute, type NavigationAction, type RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {AccessibilityInfo, Animated, Easing, Keyboard, Pressable, StyleSheet, View} from 'react-native';
+import {AccessibilityInfo, Animated, Easing, Keyboard, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {useTheme} from 'styled-components/native';
 import {Ribbon} from '../../components/brand/Brand';
 import {Button, Card, Checkbox, Dialog, Divider, ErrorState, Icon, LoadingBlock, money, MoneyField, OtpInput, RadioCards, Screen, StepHeader, TextField, Txt} from '../../components/ui';
@@ -87,6 +87,10 @@ export default function LoanApply() {
   const [pinError, setPinError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<Loan | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const leaving = useRef(false);
+  const pendingLeave = useRef<NavigationAction | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   const p = productId ? LOAN_PRODUCT_BY_ID[productId] : null;
   const max = p ? maxFor(p, equityValue) : 0;
@@ -160,16 +164,67 @@ export default function LoanApply() {
     setErrors({});
     setDir(to > step ? 1 : -1);
     setStep(to);
+    scrollRef.current?.scrollTo({y: 0, animated: false});
     AccessibilityInfo.announceForAccessibility(t(`Step ${to + 1} of ${STEPS.length}: ${STEPS[to]}`, `Hakbang ${to + 1} sa ${STEPS.length}: ${STEPS[to]}`));
   };
 
-  // The phone's Back button (and the Back in the top bar) goes back one step instead of losing the answers.
-  usePreventRemove(step > 0 && !done, () => go(step - 1));
+  // The phone's Back button (and the iOS swipe) goes back one step instead of losing the answers.
+  const dirty = step > 0 || purpose.trim() !== '' || term !== '';
+  const goRef = useRef(go);
+  goRef.current = go;
+  useEffect(
+    () =>
+      nav.addListener('beforeRemove', e => {
+        if (done || leaving.current) {
+          return;
+        }
+        if (step > 0) {
+          e.preventDefault();
+          goRef.current(step - 1);
+          return;
+        }
+        if (!dirty) {
+          return;
+        }
+        e.preventDefault();
+        pendingLeave.current = e.data.action;
+        setLeaveOpen(true);
+      }),
+    [nav, step, done, dirty],
+  );
+
+  /** Cancel in the top bar: leave the flow, after a question if answers would be lost. */
+  const cancel = () => {
+    if (!dirty) {
+      leaving.current = true;
+      nav.goBack();
+      return;
+    }
+    pendingLeave.current = null;
+    setLeaveOpen(true);
+  };
+  const leave = () => {
+    leaving.current = true;
+    setLeaveOpen(false);
+    if (pendingLeave.current) {
+      nav.dispatch(pendingLeave.current);
+    } else {
+      nav.goBack();
+    }
+  };
 
   const next = () => {
     const e = validate(step);
     setErrors(e);
-    if (Object.keys(e).length) {
+    const keys = Object.keys(e) as Field[];
+    if (keys.length) {
+      // Errors at the end of a step (the consent, the calamity box) are scrolled into view.
+      if (keys.every(k => k === 'consent' || k === 'calamity')) {
+        scrollRef.current?.scrollToEnd({animated: true});
+      } else {
+        scrollRef.current?.scrollTo({y: 0, animated: true});
+      }
+      AccessibilityInfo.announceForAccessibility(e[keys[0]] ?? '');
       return;
     }
     if (!last) {
@@ -201,7 +256,7 @@ export default function LoanApply() {
 
   if (done && p) {
     return (
-      <Screen key="done" helpTopic="Loans">
+      <Screen helpTopic="Loans">
         <SuccessView
           title={t('Application sent', 'Naipadala ang application')}
           body={t(`We received your ${p.name} application for ${money(done.principal)}.`, `Natanggap namin ang iyong application sa ${p.name} na ${money(done.principal)}.`)}
@@ -227,7 +282,7 @@ export default function LoanApply() {
   ) : undefined;
 
   return (
-    <Screen key={`step-${step}`} helpTopic="Loans" title={t('Apply for a loan', 'Mag-apply ng loan')} subtitle={step === 0 ? t('It takes about 5 minutes. You can go back and change any answer before you send it.', 'Mga 5 minuto lang ito. Puwede kang bumalik at baguhin ang sagot bago ipadala.') : undefined} footer={footer}>
+    <Screen scrollRef={scrollRef} onCancel={cancel} helpTopic="Loans" title={t('Apply for a loan', 'Mag-apply ng loan')} subtitle={step === 0 ? t('It takes about 5 minutes. You can go back and change any answer before you send it.', 'Mga 5 minuto lang ito. Puwede kang bumalik at baguhin ang sagot bago ipadala.') : undefined} footer={footer}>
       {load.error ? (
         <ErrorState onRetry={load.retry} helpTopic="Loans" />
       ) : !load.ready ? (
@@ -246,12 +301,12 @@ export default function LoanApply() {
             </View>
           ) : null}
 
-          <StepIn dir={dir}>
+          <StepIn key={step} dir={dir}>
             {step === 0 && (
               <View style={styles.step}>
                 <StepTitle title={t('Which loan do you need?', 'Anong loan ang kailangan mo?')} helper={t('Choose one. Each one shows the most you can borrow and the interest.', 'Pumili ng isa. Makikita sa bawat isa ang pinakamalaking mahihiram at ang interes.')} />
-                <ProductPicker value={productId} onChange={chooseProduct} options={open} />
                 {errors.product ? <FieldError text={errors.product} /> : null}
+                <ProductPicker value={productId} onChange={chooseProduct} options={open} />
                 {blocked.length > 0 ? (
                   <Card tone="inset" style={styles.gap}>
                     <Txt variant="bodyStrong">{t('Not available to you right now', 'Hindi mo pa ito ma-a-apply ngayon')}</Txt>
@@ -314,6 +369,7 @@ export default function LoanApply() {
             {step === 2 && p && (
               <View style={styles.step}>
                 <StepTitle title={t('How many months will you pay?', 'Ilang buwan mo ito babayaran?')} helper={t('More months means a smaller amount each month, but more interest in total.', 'Mas maraming buwan, mas maliit ang buwanang hulog pero mas malaki ang kabuuang interes.')} />
+                {errors.term ? <FieldError text={errors.term} /> : null}
                 <RadioCards
                   label={t('Months to pay', 'Ilang buwan')}
                   value={term === '' ? '' : String(term)}
@@ -323,7 +379,6 @@ export default function LoanApply() {
                   }}
                   options={p.terms.map(m => ({value: String(m), label: monthsText(m, t), description: t(`${money(round2(amortization(amt, p.rate, m)))} a month`, `${money(round2(amortization(amt, p.rate, m)))} kada buwan`)}))}
                 />
-                {errors.term ? <FieldError text={errors.term} /> : null}
                 {term !== '' ? (
                   <>
                     <Card tone="inset" style={styles.figures}>
@@ -404,6 +459,7 @@ export default function LoanApply() {
             {step === 4 && p && (
               <View style={styles.step}>
                 <StepTitle title={t('Where should we send the money?', 'Saan namin ipapadala ang pera?')} helper={t('Only accounts in your name that we have checked are shown.', 'Ang mga account lang na nasa pangalan mo at na-check na namin ang ipinapakita.')} />
+                {errors.account ? <FieldError text={errors.account} /> : null}
                 {verified.length === 0 ? (
                   <Note tone="info">
                     {t('You have no checked payout account yet. We will prepare a cheque at your branch. You can add an account in Payouts.', 'Wala ka pang na-check na payout account. Maghahanda kami ng cheke sa iyong sangay. Puwede kang magdagdag ng account sa Payouts.')}
@@ -424,7 +480,6 @@ export default function LoanApply() {
                     }))}
                   />
                 )}
-                {errors.account ? <FieldError text={errors.account} /> : null}
                 {unverified.map(a => (
                   <Note key={a.id} tone="warn">
                     {t(`${a.provider} ${maskAccount(a.accountNo)} is still being checked. You can use it once it is verified.`, `Sinusuri pa ang ${a.provider} ${maskAccount(a.accountNo)}. Magagamit ito kapag na-verify na.`)}
@@ -475,6 +530,21 @@ export default function LoanApply() {
           </View>
         </>
       )}
+
+      <Dialog
+        open={leaveOpen}
+        onClose={() => setLeaveOpen(false)}
+        title={t('Leave your application?', 'Iiwan ang application?')}
+        footer={
+          <>
+            <Button title={t('Keep going', 'Ituloy ang application')} onPress={() => setLeaveOpen(false)} />
+            <Button title={t('Leave and clear my answers', 'Umalis at burahin ang sagot')} variant="quiet" onPress={leave} testID="apply-leave" />
+          </>
+        }>
+        <Txt variant="body" color="soft">
+          {t('Your answers are not sent yet. If you leave now, you will start again next time.', 'Hindi pa naipapadala ang iyong mga sagot. Kung aalis ka ngayon, magsisimula ka ulit sa susunod.')}
+        </Txt>
+      </Dialog>
 
       <Dialog
         open={confirmOpen}

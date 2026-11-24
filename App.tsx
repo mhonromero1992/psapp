@@ -3,15 +3,12 @@ import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, useColorScheme, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {enableScreens} from 'react-native-screens';
 import {ThemeProvider} from 'styled-components/native';
 import RootLayout from './src/app/_layout';
 import {makeTheme} from './src/config/theme';
 import {useDB} from './src/store/db';
 import {usePrefs} from './src/store/prefs';
 import {useSession} from './src/store/session';
-
-enableScreens();
 
 /** Wait until the stored sample data, session and preferences are read from the phone. */
 function useHydrated() {

@@ -43,10 +43,15 @@ export function SignaturePad({onChange, label}: {onChange: (signed: boolean) => 
   const [paths, setPaths] = useState<string[]>([]);
   const current = useRef('');
   const [, force] = useState(0);
+  // The responder is made once; it calls the latest onChange through this ref.
+  const changed = useRef(onChange);
+  changed.current = onChange;
   const pan = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      // Keep the stroke when the finger moves up or down: the page must not scroll mid-signature.
+      onPanResponderTerminationRequest: () => false,
       onPanResponderGrant: e => {
         current.current = `M${e.nativeEvent.locationX.toFixed(1)},${e.nativeEvent.locationY.toFixed(1)}`;
         force(n => n + 1);
@@ -58,11 +63,8 @@ export function SignaturePad({onChange, label}: {onChange: (signed: boolean) => 
       onPanResponderRelease: () => {
         const p = current.current;
         current.current = '';
-        setPaths(ps => {
-          const next = [...ps, p];
-          onChange(true);
-          return next;
-        });
+        setPaths(ps => [...ps, p]);
+        changed.current(true);
       },
     }),
   ).current;

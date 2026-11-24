@@ -10,6 +10,8 @@ import {DEMO_MEMBER, demoUser, SAMPLE_OTP, useSession} from '../../store/session
 import {toast} from '../../store/ui';
 import {HelpLink} from '../shared/Help';
 
+const FULL = 1;
+
 /** Accepts the member ID or the registered mobile number, in any spacing. */
 function matchesMember(v: string) {
   const id = v.trim().toUpperCase().replace(/\s/g, '');
@@ -136,7 +138,7 @@ function FingerprintDialog({open, onClose, onSuccess}: {open: boolean; onClose: 
   return (
     <Dialog open={open} onClose={onClose} title={t('Touch the fingerprint sensor', 'Hawakan ang fingerprint sensor')} footer={!ok ? <Button title={t('Cancel', 'Kanselahin')} variant="quiet" onPress={onClose} /> : undefined}>
       <View style={styles.fpBody} accessibilityLiveRegion="polite">
-        <Animated.View style={[styles.fpDisc, {backgroundColor: ok ? colors.tones.ok.bg : colors.primarySoft, opacity: ok ? 1 : pulse}]}>
+        <Animated.View style={[styles.fpDisc, {backgroundColor: ok ? colors.tones.ok.bg : colors.primarySoft, opacity: ok ? FULL : pulse}]}>
           <Icon name={ok ? 'checkCircle' : 'fingerprint'} size={64} weight={ok ? 'fill' : 'duotone'} color={ok ? colors.positive : colors.primaryText} />
         </Animated.View>
         <Txt variant="heading">{ok ? t('Fingerprint recognized', 'Nakilala ang fingerprint') : t('Waiting for your fingerprint', 'Hinihintay ang iyong fingerprint')}</Txt>

@@ -10,7 +10,6 @@ import type {AgencyCode} from '../../data/types';
 import {useT} from '../../lib/i18n';
 import type {RootStackParamList} from '../../navigations/types';
 import {useDB} from '../../store/db';
-import {toast} from '../../store/ui';
 import {HelpLink} from '../shared/Help';
 import {nowMs} from '../shared/text';
 
@@ -49,7 +48,7 @@ const ageOn = (iso: string) => (nowMs() - new Date(`${iso}T00:00:00`).getTime())
  */
 export default function Enrol() {
   const t = useT();
-  const {colors} = useTheme();
+  const {colors, scale} = useTheme();
   const nav = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Enrol'>>();
   const submitEnrolment = useDB(s => s.submitEnrolment);
@@ -225,7 +224,6 @@ export default function Enrol() {
       });
       setBusy(false);
       setDone(res.id);
-      toast(t('Enrolment sent', 'Naipadala ang enrolment'), 'ok', res.id);
       scrollRef.current?.scrollTo({y: 0, animated: false});
     }, 900);
   };
@@ -255,7 +253,7 @@ export default function Enrol() {
       helpTopic="Something else"
       footer={
         <View style={styles.footRow}>
-          {step > 0 ? <Button title={t('Back', 'Bumalik')} icon="back" variant="quiet" onPress={() => go(step - 1)} style={styles.footBack} /> : null}
+          {step > 0 ? <Button title={t('Back', 'Bumalik')} icon={scale > 1 ? undefined : 'back'} variant="quiet" onPress={() => go(step - 1)} style={styles.footBack} /> : null}
           <Button
             title={step < TOTAL - 1 ? t('Continue', 'Magpatuloy') : t('Sign and send', 'Pumirma at ipadala')}
             iconRight={step < TOTAL - 1 ? 'forward' : undefined}
@@ -595,7 +593,7 @@ export default function Enrol() {
             <Summary
               title={t('Beneficiaries', 'Mga beneficiary')}
               onEdit={() => go(3)}
-              rows={benes.map(b => [b.name, `${t(b.relation, relFil(b.relation))} · ${b.share}%${dfi === b.key ? ` · ${t('free insurance', 'libreng insurance')}` : ''}`])}
+              rows={benes.map(b => [`${t(b.relation, relFil(b.relation))} · ${b.share}%${dfi === b.key ? ` · ${t('free insurance', 'libreng insurance')}` : ''}`, b.name])}
             />
             <View onLayout={at('agree')}>
               <Card style={styles.gapXs}>

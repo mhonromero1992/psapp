@@ -42,7 +42,7 @@ export function History({events, upcoming = [], format}: {events: HistoryEvent[]
             <View style={[styles.node, {backgroundColor: colors.positive}]}>
               <Icon name="check" size={13} color="#fff" weight="bold" />
             </View>
-            {(i < last || upcoming.length > 0) && <View style={[styles.line, {backgroundColor: colors.positive, opacity: 0.4}]} />}
+            {(i < last || upcoming.length > 0) && <View style={[styles.line, styles.lineDone, {backgroundColor: colors.positive}]} />}
           </View>
           <View style={styles.flex}>
             <Txt variant={i === last ? 'bodyStrong' : 'body'}>{e.label}</Txt>
@@ -61,7 +61,7 @@ export function History({events, upcoming = [], format}: {events: HistoryEvent[]
       {upcoming.map((u, i) => (
         <View key={u} style={styles.item}>
           <View style={styles.rail}>
-            <View style={[styles.node, {borderWidth: 2, borderColor: colors.lineStrong}]} />
+            <View style={[styles.node, styles.nodeTodo, {borderColor: colors.lineStrong}]} />
             {i < upcoming.length - 1 && <View style={[styles.line, {backgroundColor: colors.line}]} />}
           </View>
           <Txt variant="body" color="soft" style={styles.flex}>
@@ -82,5 +82,7 @@ const styles = StyleSheet.create({
   rail: {width: 22, alignItems: 'center'},
   node: {width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: 2},
   line: {flex: 1, width: 2, borderRadius: 1, marginTop: 4},
+  lineDone: {opacity: 0.4},
+  nodeTodo: {borderWidth: 2},
   note: {borderRadius: 12, padding: 12, marginTop: 8},
 });
