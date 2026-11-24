@@ -24,7 +24,7 @@ screen.
 | Home | Equity Value, cover, six big actions, what is happening (loan payments, claim steps, assistance), latest updates |
 | Equity Value | The history chart, contributions, the statement sent through the phone's share sheet |
 | Loans | The six PSMBFI loan products with eligibility; apply with a live monthly amount and a PIN to confirm; follow each step |
-| Claims | File a claim with photos from the camera or gallery, follow its steps, send a returned document again |
+| Claims | Every benefit explained, with "File this claim"; file with photos from the camera or gallery, follow its five steps, send a returned document again |
 | Payouts | Where PSMBFI sends money (bank or e-wallet) and every payout |
 | Legal & Travel Assistance | Ask for legal or travel help in the same login |
 | Notifications | Every update, newest first; tapping one opens the loan, claim or payout |

@@ -78,7 +78,7 @@ export default function Welcome() {
 
         <View style={styles.actions}>
           <Button title={t('Sign in', 'Mag-sign in')} icon="key" onPress={() => nav.navigate('SignIn')} testID="welcome-sign-in" />
-          <Button title={t("I'm new: enrol as a member", 'Bago ako: mag-enrol bilang miyembro')} icon="id" iconRight="forward" variant="quiet" onPress={() => nav.navigate('Enrol')} />
+          <Button title={t("I'm new: enrol as a member", 'Bago ako: mag-enrol bilang miyembro')} icon="id" iconRight={scale > 1 ? undefined : 'forward'} variant="quiet" onPress={() => nav.navigate('Enrol')} />
         </View>
 
         <Card style={styles.sizeCard}>
