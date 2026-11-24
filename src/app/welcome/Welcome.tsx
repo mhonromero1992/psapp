@@ -27,7 +27,7 @@ export default function Welcome() {
   useEffect(() => {
     let alive = true;
     AccessibilityInfo.isReduceMotionEnabled().then(reduced => {
-      if (!alive) return;
+      if (!alive) {return;}
       if (reduced) {
         swing.setValue(0);
         fade.setValue(1);

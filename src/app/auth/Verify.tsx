@@ -18,14 +18,14 @@ export default function Verify() {
   const [wait, setWait] = useState(30);
 
   useEffect(() => {
-    if (wait <= 0) return;
+    if (wait <= 0) {return;}
     const id = setTimeout(() => setWait(w => w - 1), 1000);
     return () => clearTimeout(id);
   }, [wait]);
 
   const verify = () => {
-    if (code.length !== 6) return setError(t('Enter all 6 numbers of the code.', 'Ilagay ang lahat ng 6 na numero ng code.'));
-    if (code !== SAMPLE_OTP) return setError(t('That code is not right. Check the SMS and try again.', 'Mali ang code. Tingnan ang SMS at subukan muli.'));
+    if (code.length !== 6) {return setError(t('Enter all 6 numbers of the code.', 'Ilagay ang lahat ng 6 na numero ng code.'));}
+    if (code !== SAMPLE_OTP) {return setError(t('That code is not right. Check the SMS and try again.', 'Mali ang code. Tingnan ang SMS at subukan muli.'));}
     setError(null);
     setBusy(true);
     setTimeout(() => signIn(demoUser()), 450);

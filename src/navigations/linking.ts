@@ -7,7 +7,7 @@ type Route = {name: keyof RootStackParamList; params?: object};
  * This turns a path into the app screen that shows it.
  */
 export function routeForLink(link: string | null | undefined): Route {
-  if (!link) return {name: 'Notifications'};
+  if (!link) {return {name: 'Notifications'};}
   const parts = link.replace(/^\/member\/?/, '').split('/').filter(Boolean);
   const tab = (screen: keyof TabParamList): Route => ({name: 'Main', params: {screen}});
   switch (parts[0]) {

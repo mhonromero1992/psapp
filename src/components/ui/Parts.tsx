@@ -25,7 +25,7 @@ export function Card({children, style, tone = 'panel', pad = 18}: {children: Rea
 export function SectionHead({title, action, count}: {title: string; action?: React.ReactNode; count?: number}) {
   return (
     <View style={styles.sectionHead}>
-      <Txt variant="title" accessibilityRole="header" style={styles.flex}>
+      <Txt variant="title" accessibilityRole="header" style={styles.headTitle}>
         {title}
         {typeof count === 'number' ? <Txt variant="bodyStrong" color="muted">{`  ${count}`}</Txt> : null}
       </Txt>
@@ -52,7 +52,7 @@ export function ListRow({title, subtitle, icon, right, onPress, accessibilityHin
       {onPress && !right ? <Icon name="chevron" size={18} color={colors.textMuted} weight="bold" /> : null}
     </>
   );
-  if (!onPress) return <View style={styles.row}>{body}</View>;
+  if (!onPress) {return <View style={styles.row}>{body}</View>;}
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={subtitle ? `${title}, ${subtitle}` : title} accessibilityHint={accessibilityHint} style={({pressed}) => [styles.row, pressed && {backgroundColor: colors.panel2}]}>
       {body}
@@ -93,7 +93,7 @@ export function ProgressBar({value, max = 1, tone = 'primary', label}: {value: n
   const pct = Math.max(0, Math.min(1, value / max));
   return (
     <View accessibilityRole="progressbar" accessibilityLabel={label} accessibilityValue={{min: 0, max: 100, now: Math.round(pct * 100)}} style={[styles.track, {backgroundColor: colors.panel2}]}>
-      <View style={{width: `${pct * 100}%`, height: '100%', borderRadius: 999, backgroundColor: tone === 'positive' ? colors.positive : colors.primary}} />
+      <View style={[styles.fill, {width: `${pct * 100}%`, backgroundColor: tone === 'positive' ? colors.positive : colors.primary}]} />
     </View>
   );
 }
@@ -104,10 +104,12 @@ export function Avatar({name, size = 40}: {name: string; size?: number}) {
   const initials = ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
   const palette = [['#e3edf9', '#0d4486'], ['#e2f4ea', '#006b31'], ['#fbe5e6', '#9b1015']];
   let h = 0;
-  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  for (const ch of name) {
+    h = (h * 31 + ch.charCodeAt(0)) % 1000003;
+  }
   const [bg, fg] = palette[h % palette.length];
   return (
-    <View style={{width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center'}} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View style={[styles.avatar, {width: size, height: size, borderRadius: size / 2, backgroundColor: bg}]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Txt variant="smallStrong" style={{color: fg, fontSize: size * 0.38, lineHeight: size * 0.46}}>
         {initials}
       </Txt>
@@ -130,11 +132,14 @@ export function Fact({label, value, big}: {label: string; value: string; big?: b
 const styles = StyleSheet.create({
   shadow: {shadowColor: '#071b37', shadowOpacity: 0.07, shadowRadius: 14, shadowOffset: {width: 0, height: 4}, elevation: 2},
   edge: {borderWidth: StyleSheet.hairlineWidth * 2},
-  sectionHead: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, minHeight: 44},
+  sectionHead: {flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', columnGap: 12, rowGap: 8, marginBottom: 10, minHeight: 44},
+  headTitle: {flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 140},
   flex: {flex: 1},
   row: {flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 12, paddingHorizontal: 16},
   rowIcon: {width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center'},
   badge: {flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8},
   track: {height: 10, borderRadius: 999, overflow: 'hidden'},
+  fill: {height: '100%', borderRadius: 999},
+  avatar: {alignItems: 'center', justifyContent: 'center'},
   fact: {gap: 2, flex: 1, minWidth: 130},
 });

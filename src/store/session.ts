@@ -48,6 +48,6 @@ export const DEMO_MEMBER = {
 export const SAMPLE_OTP = '482913';
 
 export function demoUser(): SessionUser {
-  const {mobile: _m, ...u} = DEMO_MEMBER;
-  return u;
+  const {id, name, title, scope} = DEMO_MEMBER;
+  return {id, name, title, scope};
 }

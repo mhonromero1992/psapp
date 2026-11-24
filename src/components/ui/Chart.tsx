@@ -14,13 +14,13 @@ export interface ChartSeries {
 }
 
 const nice = (max: number) => {
-  if (max <= 0) return [0, 1];
+  if (max <= 0) {return [0, 1];}
   const raw = max / 3;
   const mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) ?? raw;
   const top = Math.ceil(max / step) * step;
   const out: number[] = [];
-  for (let v = 0; v <= top + step / 2; v += step) out.push(v);
+  for (let v = 0; v <= top + step / 2; v += step) {out.push(v);}
   return out;
 };
 const tick = (v: number) => (v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1).replace(/\.0$/, '')}M` : v >= 10_000 ? `${Math.round(v / 1000)}K` : v.toLocaleString('en-PH'));

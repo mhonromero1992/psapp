@@ -28,10 +28,14 @@ interface ScreenProps {
   scroll?: boolean;
   /** Extra space under the content for the floating tab bar. */
   tabs?: boolean;
+  /** In a flow: the bar shows Cancel (this action) instead of Back, which belongs to the steps. */
+  onCancel?: () => void;
+  /** To scroll back to the top on a new step, or down to the first error. */
+  scrollRef?: React.RefObject<ScrollView | null>;
   testID?: string;
 }
 
-export function Screen({children, bar = 'stack', title, subtitle, lead, helpTopic, onRefresh, refreshing = false, footer, scroll = true, tabs, testID}: ScreenProps) {
+export function Screen({children, bar = 'stack', title, subtitle, lead, helpTopic, onRefresh, refreshing = false, footer, scroll = true, tabs, onCancel, scrollRef, testID}: ScreenProps) {
   const {colors, space} = useTheme();
   const insets = useSafeAreaInsets();
   const body = (
@@ -58,10 +62,11 @@ export function Screen({children, bar = 'stack', title, subtitle, lead, helpTopi
     <SafeAreaView testID={testID} edges={['top', 'left', 'right']} style={[styles.root, {backgroundColor: colors.ground}]}>
       <StatusBar barStyle={colors.scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.ground} />
       {bar === 'tabs' && <TabsBar helpTopic={helpTopic} />}
-      {bar === 'stack' && <StackBar helpTopic={helpTopic} />}
+      {bar === 'stack' && <StackBar helpTopic={helpTopic} onCancel={onCancel} />}
       <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {scroll ? (
           <ScrollView
+            ref={scrollRef}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{padding: space.gutter, paddingBottom: (tabs ? 120 : 40) + (footer ? 0 : insets.bottom)}}
             refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} /> : undefined}>
@@ -124,13 +129,18 @@ function TabsBar({helpTopic}: {helpTopic?: string}) {
   );
 }
 
-function StackBar({helpTopic}: {helpTopic?: string}) {
+function StackBar({helpTopic, onCancel}: {helpTopic?: string; onCancel?: () => void}) {
   const t = useT();
   const {colors} = useTheme();
   const nav = useNavigation();
   return (
     <View style={styles.bar}>
-      {nav.canGoBack() ? (
+      {onCancel ? (
+        <Pressable onPress={onCancel} accessibilityRole="button" accessibilityLabel={t('Cancel', 'Kanselahin')} style={({pressed}) => [styles.back, pressed && {backgroundColor: colors.panel2}]}>
+          <Icon name="close" size={22} weight="bold" />
+          <Txt variant="bodyStrong">{t('Cancel', 'Kanselahin')}</Txt>
+        </Pressable>
+      ) : nav.canGoBack() ? (
         <Pressable onPress={() => nav.goBack()} accessibilityRole="button" accessibilityLabel={t('Back', 'Bumalik')} style={({pressed}) => [styles.back, pressed && {backgroundColor: colors.panel2}]}>
           <Icon name="back" size={22} weight="bold" />
           <Txt variant="bodyStrong">{t('Back', 'Bumalik')}</Txt>

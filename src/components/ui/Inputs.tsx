@@ -107,7 +107,7 @@ export function PhotoPicker({label, hint, photos, onChange, max = 4, selfie}: {l
   const {colors} = useTheme();
   const add = (assets?: Asset[]) => {
     const got = (assets ?? []).filter(a => a.uri).map(a => ({uri: a.uri as string, name: a.fileName ?? 'photo.jpg'}));
-    if (got.length) onChange([...photos, ...got].slice(0, max));
+    if (got.length) {onChange([...photos, ...got].slice(0, max));}
   };
   const opts = {mediaType: 'photo' as const, quality: 0.7 as const, maxWidth: 1600, maxHeight: 1600, cameraType: selfie ? ('front' as const) : ('back' as const)};
   return (

@@ -35,7 +35,7 @@ export function TabBar({state, navigation}: BottomTabBarProps) {
               accessibilityLabel={label}
               onPress={() => {
                 const e = navigation.emit({type: 'tabPress', target: route.key, canPreventDefault: true});
-                if (!on && !e.defaultPrevented) navigation.navigate(route.name);
+                if (!on && !e.defaultPrevented) {navigation.navigate(route.name);}
               }}
               style={({pressed}) => [styles.tab, on && {backgroundColor: colors.primarySoft}, pressed && !on && {backgroundColor: colors.panel2}]}>
               <Icon name={tab.icon} size={26} weight={on ? 'duotone' : 'regular'} color={on ? colors.primaryText : colors.textSoft} />

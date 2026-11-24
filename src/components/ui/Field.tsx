@@ -146,6 +146,7 @@ export function SelectField<T extends string>({label, value, options, onChange, 
               }}
               accessibilityRole="radio"
               accessibilityState={{checked: on}}
+              accessibilityLabel={o.description ? `${o.label}, ${o.description}` : o.label}
               style={({pressed}) => [styles.option, {backgroundColor: on ? colors.primarySoft : pressed ? colors.panel2 : 'transparent'}]}>
               <View style={styles.flex}>
                 <Txt variant="bodyStrong">{o.label}</Txt>
@@ -172,11 +173,11 @@ export function DateField({label, value, onChange, error, hint, fromYear, toYear
   const t = useT();
   const [y, m, d] = value ? value.split('-').map(Number) : [0, 0, 0];
   const set = (ny: number, nm: number, nd: number) => {
-    if (ny && nm && nd) onChange(`${ny}-${String(nm).padStart(2, '0')}-${String(Math.min(nd, new Date(ny, nm, 0).getDate())).padStart(2, '0')}`);
-    else onChange(ny || nm || nd ? `${ny || 0}-${nm || 0}-${nd || 0}` : '');
+    if (ny && nm && nd) {onChange(`${ny}-${String(nm).padStart(2, '0')}-${String(Math.min(nd, new Date(ny, nm, 0).getDate())).padStart(2, '0')}`);}
+    else {onChange(ny || nm || nd ? `${ny || 0}-${nm || 0}-${nd || 0}` : '');}
   };
   const years: {value: string; label: string}[] = [];
-  for (let yy = toYear; yy >= fromYear; yy--) years.push({value: String(yy), label: String(yy)});
+  for (let yy = toYear; yy >= fromYear; yy--) {years.push({value: String(yy), label: String(yy)});}
   return (
     <FieldFrame label={label} error={error} hint={hint}>
       <View style={styles.dateRow}>

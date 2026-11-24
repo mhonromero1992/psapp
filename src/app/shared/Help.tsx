@@ -55,11 +55,11 @@ export function HelpSheet() {
 
   const submit = () => {
     const e: typeof errors = {};
-    if (!when) e.when = t('Choose a time for our call.', 'Pumili ng oras para sa tawag.');
-    if (!member && name.trim().length < 3) e.name = t('Enter your full name.', 'Ilagay ang iyong buong pangalan.');
-    if (mobile.replace(/\D/g, '').length !== 11) e.mobile = t('Enter an 11-digit mobile number, like 0917 123 4567.', 'Ilagay ang 11-digit na mobile number, gaya ng 0917 123 4567.');
+    if (!when) {e.when = t('Choose a time for our call.', 'Pumili ng oras para sa tawag.');}
+    if (!member && name.trim().length < 3) {e.name = t('Enter your full name.', 'Ilagay ang iyong buong pangalan.');}
+    if (mobile.replace(/\D/g, '').length !== 11) {e.mobile = t('Enter an 11-digit mobile number, like 0917 123 4567.', 'Ilagay ang 11-digit na mobile number, gaya ng 0917 123 4567.');}
     setErrors(e);
-    if (Object.keys(e).length) return;
+    if (Object.keys(e).length) {return;}
     setBusy(true);
     setTimeout(() => {
       const label = when === 'morning' ? t('Tomorrow morning', 'Bukas ng umaga') : t('This afternoon', 'Mamayang hapon');

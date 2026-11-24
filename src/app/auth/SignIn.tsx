@@ -36,16 +36,16 @@ export default function SignIn() {
 
   const submit = () => {
     const e: typeof errors = {};
-    if (!account.trim()) e.account = t('Enter your member ID or mobile number.', 'Ilagay ang iyong member ID o mobile number.');
-    else if (!matchesMember(account)) e.account = t("We can't find that member ID or mobile number. Check it against your membership card.", 'Hindi namin makita ang member ID o mobile number na iyan. Tingnan ang iyong membership card.');
-    if (!/^\d{6}$/.test(pinValue)) e.pin = t('Your PIN has 6 numbers.', 'Ang iyong PIN ay may 6 na numero.');
+    if (!account.trim()) {e.account = t('Enter your member ID or mobile number.', 'Ilagay ang iyong member ID o mobile number.');}
+    else if (!matchesMember(account)) {e.account = t("We can't find that member ID or mobile number. Check it against your membership card.", 'Hindi namin makita ang member ID o mobile number na iyan. Tingnan ang iyong membership card.');}
+    if (!/^\d{6}$/.test(pinValue)) {e.pin = t('Your PIN has 6 numbers.', 'Ang iyong PIN ay may 6 na numero.');}
     else if (!e.account && pinValue !== pin) {
       const left = tries - 1;
       setTries(left);
       e.pin = t(`That PIN does not match. You have ${left} tries left.`, `Hindi tugma ang PIN. May ${left} subok ka pa.`);
     }
     setErrors(e);
-    if (Object.keys(e).length) return;
+    if (Object.keys(e).length) {return;}
     setBusy(true);
     setTimeout(() => {
       setBusy(false);
@@ -172,18 +172,18 @@ function ForgotPin({open, onClose}: {open: boolean; onClose: () => void}) {
   const go = () => {
     setErr(null);
     if (step === 0) {
-      if (mobile.replace(/\D/g, '') !== DEMO_MEMBER.mobile.replace(/\D/g, '')) return setErr(t('That number is not the one on your membership record. For this demo, use 0917 482 1196.', 'Hindi iyan ang numero sa iyong record. Para sa demo, gamitin ang 0917 482 1196.'));
+      if (mobile.replace(/\D/g, '') !== DEMO_MEMBER.mobile.replace(/\D/g, '')) {return setErr(t('That number is not the one on your membership record. For this demo, use 0917 482 1196.', 'Hindi iyan ang numero sa iyong record. Para sa demo, gamitin ang 0917 482 1196.'));}
       toast(t('Code sent by SMS', 'Naipadala ang code sa SMS'), 'info', t(`Sample code for this demo: ${SAMPLE_OTP}`, `Sample code para sa demo: ${SAMPLE_OTP}`));
       return setStep(1);
     }
     if (step === 1) {
-      if (code !== SAMPLE_OTP) return setErr(t('That code is not right. Check the SMS and try again.', 'Mali ang code. Tingnan ang SMS at subukan muli.'));
+      if (code !== SAMPLE_OTP) {return setErr(t('That code is not right. Check the SMS and try again.', 'Mali ang code. Tingnan ang SMS at subukan muli.'));}
       return setStep(2);
     }
     if (step === 2) {
-      if (!/^\d{6}$/.test(p1)) return setErr(t('Your new PIN needs exactly 6 numbers.', 'Ang bagong PIN ay dapat may 6 na numero.'));
-      if (/^(\d)\1{5}$/.test(p1) || p1 === '123456' || p1 === '654321') return setErr(t('Choose a PIN that is harder to guess than repeated or counting numbers.', 'Pumili ng PIN na hindi madaling hulaan.'));
-      if (p1 !== p2) return setErr(t('The two PINs are not the same.', 'Hindi magkapareho ang dalawang PIN.'));
+      if (!/^\d{6}$/.test(p1)) {return setErr(t('Your new PIN needs exactly 6 numbers.', 'Ang bagong PIN ay dapat may 6 na numero.'));}
+      if (/^(\d)\1{5}$/.test(p1) || p1 === '123456' || p1 === '654321') {return setErr(t('Choose a PIN that is harder to guess than repeated or counting numbers.', 'Pumili ng PIN na hindi madaling hulaan.'));}
+      if (p1 !== p2) {return setErr(t('The two PINs are not the same.', 'Hindi magkapareho ang dalawang PIN.'));}
       setPin(p1);
       return setStep(3);
     }

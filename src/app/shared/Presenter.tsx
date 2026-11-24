@@ -31,7 +31,7 @@ export function PresenterTools() {
   const setClaimStatus = useDB(s => s.setClaimStatus);
   const openLoans = useMemo(() => loans.filter(l => LOAN_NEXT[l.status]), [loans]);
   const openClaims = useMemo(() => claims.filter(c => CLAIM_NEXT[c.status]), [claims]);
-  if (!on) return null;
+  if (!on) {return null;}
   return (
     <>
       <Pressable onPress={() => setOpen(true)} accessibilityRole="button" accessibilityLabel="Presenter tools" style={[styles.fab, {bottom: insets.bottom + 96}]}>

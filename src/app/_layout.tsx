@@ -17,7 +17,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 /** Open the screen a notification points at (the paths are shared with the web version). */
 export function openLink(link: string | null | undefined) {
-  if (!navigationRef.isReady()) return;
+  if (!navigationRef.isReady()) {return;}
   const r = routeForLink(link);
   (navigationRef.navigate as (name: string, params?: object) => void)(r.name, r.params);
 }
