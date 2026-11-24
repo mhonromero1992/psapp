@@ -3,13 +3,13 @@ import { cn } from "@/lib/cn";
 
 export function Checkbox({ checked, onCheckedChange, label, description, id, className, disabled }: { checked: boolean; onCheckedChange: (v: boolean) => void; label: React.ReactNode; description?: React.ReactNode; id?: string; className?: string; disabled?: boolean }) {
   return (
-    <label className={cn("group flex cursor-pointer items-start gap-3 rounded-md py-1", disabled && "cursor-not-allowed opacity-60", className)}>
+    <label className={cn("group flex min-h-11 cursor-pointer items-start gap-3 rounded-md py-1.5", disabled && "cursor-not-allowed opacity-60", className)}>
       <RCheckbox.Root
         id={id}
         checked={checked}
         disabled={disabled}
         onCheckedChange={(v) => onCheckedChange(v === true)}
-        className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-[7px] bg-surface shadow-[inset_0_0_0_1.5px_var(--line-strong)] transition-[background-color,box-shadow] duration-200 data-[state=checked]:bg-primary-strong data-[state=checked]:shadow-none group-hover:shadow-[inset_0_0_0_1.5px_var(--primary)]"
+        className="grid size-7 shrink-0 place-items-center rounded-[8px] bg-surface shadow-[inset_0_0_0_1.5px_var(--line-strong)] transition-[background-color,box-shadow] duration-200 data-[state=checked]:bg-primary-strong data-[state=checked]:shadow-none group-hover:shadow-[inset_0_0_0_1.5px_var(--primary)]"
       >
         <RCheckbox.Indicator>
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden><path d="M2.5 6.2 5 8.6 9.6 3.6" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>

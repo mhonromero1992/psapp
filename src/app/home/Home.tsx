@@ -230,10 +230,9 @@ export default function Home() {
                   return (
                     <Pressable key={c.id} onPress={() => nav.navigate('ClaimDetail', {id: c.id})} accessibilityRole="button" accessibilityLabel={`${BENEFIT_BY_ID[c.type].name}, ${t(CLAIM_STATUS[c.status].en, CLAIM_STATUS[c.status].fil)}`}>
                       <Card style={styles.gap}>
-                        <View style={styles.rowBetween}>
-                          <Txt variant="bodyStrong" style={styles.flex}>
-                            {t(BENEFIT_BY_ID[c.type].name, BENEFIT_BY_ID[c.type].nameFil)}
-                          </Txt>
+                        {/* Long benefit names: the status sits under the name, never squeezing it. */}
+                        <View style={styles.gapXs}>
+                          <Txt variant="bodyStrong">{t(BENEFIT_BY_ID[c.type].name, BENEFIT_BY_ID[c.type].nameFil)}</Txt>
                           <Badge tone={CLAIM_STATUS[c.status].tone} label={t(CLAIM_STATUS[c.status].en, CLAIM_STATUS[c.status].fil)} />
                         </View>
                         <View style={styles.track} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -306,6 +305,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  gapXs: {gap: 6},
   onBandOk: {color: ON_BAND_OK},
   flex: {flex: 1},
   head: {gap: 6, marginBottom: 20, marginTop: 4},
