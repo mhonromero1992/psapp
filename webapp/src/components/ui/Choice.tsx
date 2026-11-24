@@ -17,7 +17,7 @@ export function Checkbox({ checked, onCheckedChange, label, description, id, cla
       </RCheckbox.Root>
       <span className="min-w-0">
         <span className="block text-[1rem] font-medium leading-snug text-ink">{label}</span>
-        {description && <span className="mt-0.5 block text-[0.9rem] text-ink-2">{description}</span>}
+        {description && <span className="mt-0.5 block text-[0.9375rem] text-ink-2">{description}</span>}
       </span>
     </label>
   );
@@ -28,7 +28,7 @@ export function Switch({ checked, onCheckedChange, label, description, className
     <label className={cn("flex cursor-pointer items-center justify-between gap-4 py-1", className)}>
       <span className="min-w-0">
         <span className="block text-[1rem] font-medium text-ink">{label}</span>
-        {description && <span className="mt-0.5 block text-[0.9rem] text-ink-2">{description}</span>}
+        {description && <span className="mt-0.5 block text-[0.9375rem] text-ink-2">{description}</span>}
       </span>
       <RSwitch.Root
         checked={checked}
@@ -69,9 +69,9 @@ export function RadioCards<T extends string>({ value, onValueChange, options, cl
           {o.icon && <span className="mt-0.5 shrink-0 text-primary">{o.icon}</span>}
           <span className="min-w-0 flex-1">
             <span className="block font-semibold text-ink">{o.label}</span>
-            {o.description && <span className="mt-0.5 block text-[0.9rem] leading-snug text-ink-2">{o.description}</span>}
+            {o.description && <span className="mt-0.5 block text-[0.9375rem] leading-snug text-ink-2">{o.description}</span>}
           </span>
-          {o.aside && <span className="shrink-0 text-right text-[0.8125rem] text-ink-2">{o.aside}</span>}
+          {o.aside && <span className="shrink-0 text-right text-[0.9375rem] text-ink-2">{o.aside}</span>}
           <span aria-hidden className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full shadow-[inset_0_0_0_1.5px_var(--line-strong)] group-data-[state=checked]:bg-primary-strong group-data-[state=checked]:shadow-none">
             <svg width="10" height="10" viewBox="0 0 12 12" className="opacity-0 group-data-[state=checked]:opacity-100"><path d="M2.5 6.2 5 8.6 9.6 3.6" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </span>

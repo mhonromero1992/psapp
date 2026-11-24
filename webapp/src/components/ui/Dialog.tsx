@@ -19,7 +19,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <RDialog.Title className="font-display text-[1.35rem] font-bold [font-stretch:90%]">{title}</RDialog.Title>
-              {description ? <RDialog.Description className="mt-1 text-[0.9rem] text-ink-3">{description}</RDialog.Description> : <RDialog.Description className="sr-only">{typeof title === "string" ? title : "Dialog"}</RDialog.Description>}
+              {description ? <RDialog.Description className="mt-1 text-[1rem] text-ink-2">{description}</RDialog.Description> : <RDialog.Description className="sr-only">{typeof title === "string" ? title : "Dialog"}</RDialog.Description>}
             </div>
             <RDialog.Close className="btn btn-ghost btn-icon btn-sm -mr-2 -mt-1" aria-label="Close">
               <X size={18} weight="bold" />

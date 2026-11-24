@@ -14,7 +14,7 @@ const toneCls: Record<Tone, string> = {
 /** A real status label (functional), with a shape cue so color is never the only signal. */
 export function Badge({ tone = "neutral", children, className, dot = true }: { tone?: Tone; children: React.ReactNode; className?: string; dot?: boolean }) {
   return (
-    <span className={cn("inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-xs px-2 text-[0.75rem] font-semibold leading-none", toneCls[tone], className)}>
+    <span className={cn("inline-flex min-h-7 items-center gap-1.5 rounded-xs px-2.5 py-1 text-[0.875rem] font-semibold leading-tight", toneCls[tone], className)}>
       {dot && <StatusGlyph tone={tone} />}
       {children}
     </span>

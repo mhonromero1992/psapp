@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Camera, FilePlus, Trash } from "@phosphor-icons/react";
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
 
 export interface PickedFile {
   id: string;
@@ -15,6 +16,7 @@ export interface PickedFile {
  * small preview; nothing leaves the browser in this prototype.
  */
 export function FileDrop({ files, onChange, label, hint, accept = "image/*,application/pdf", multiple = true, capture = true, id }: { files: PickedFile[]; onChange: (f: PickedFile[]) => void; label: string; hint?: string; accept?: string; multiple?: boolean; capture?: boolean; id?: string }) {
+  const t = useT();
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
@@ -68,12 +70,12 @@ export function FileDrop({ files, onChange, label, hint, accept = "image/*,appli
         </span>
         <div>
           <p className="font-semibold text-ink">{label}</p>
-          {hint && <p className="mt-0.5 text-[0.8125rem] text-ink-3">{hint}</p>}
+          {hint && <p className="mt-0.5 text-[0.9375rem] text-ink-2">{hint}</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-2">
-          <button type="button" className="btn btn-tonal btn-sm" onClick={() => input.current?.click()}>
+          <button type="button" className="btn btn-tonal" onClick={() => input.current?.click()}>
             <span className="btn-label inline-flex items-center gap-[inherit]">
-              <FilePlus size={16} weight="bold" /> Add photo or file
+              <FilePlus size={18} weight="bold" /> {t("Add photo or file", "Magdagdag ng litrato o file")}
             </span>
           </button>
         </div>
@@ -84,14 +86,14 @@ export function FileDrop({ files, onChange, label, hint, accept = "image/*,appli
           {files.map((f) => (
             <li key={f.id} className="group relative overflow-hidden rounded-md bg-surface shadow-e1">
               {f.preview ? (
-                <img src={f.preview} alt={`Preview of ${f.name}`} width={320} height={200} className="aspect-[4/3] w-full object-cover" />
+                <img src={f.preview} alt={t(`Preview of ${f.name}`, `Silip ng ${f.name}`)} width={320} height={200} className="aspect-[4/3] w-full object-cover" />
               ) : (
                 <div className="grid aspect-[4/3] place-items-center bg-sunken text-[0.8rem] font-semibold text-ink-2">{f.type === "application/pdf" ? "PDF" : (f.name.split(".").pop() ?? "File").toUpperCase()}</div>
               )}
-              <div className="flex items-center justify-between gap-1 px-2 py-1.5">
-                <span className="truncate text-[0.75rem] font-medium text-ink-2">{f.name}</span>
-                <button type="button" aria-label={`Remove ${f.name}`} onClick={() => onChange(files.filter((x) => x.id !== f.id))} className="grid size-8 shrink-0 place-items-center rounded-sm text-ink-3 transition-colors hover:bg-negative-soft hover:text-negative">
-                  <Trash size={15} weight="bold" />
+              <div className="flex flex-col gap-0.5 px-2 py-1.5">
+                <span className="truncate text-[0.875rem] font-medium text-ink-2">{f.name}</span>
+                <button type="button" aria-label={t(`Remove ${f.name}`, `Alisin ang ${f.name}`)} onClick={() => onChange(files.filter((x) => x.id !== f.id))} className="flex min-h-11 shrink-0 items-center gap-1 rounded-sm px-2 text-[0.875rem] font-semibold text-negative transition-colors hover:bg-negative-soft">
+                  <Trash size={17} weight="bold" aria-hidden /> {t("Remove", "Alisin")}
                 </button>
               </div>
             </li>

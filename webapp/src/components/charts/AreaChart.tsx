@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
 import { niceTicks, tickLabel, useSize } from "./useSize";
 
 export interface Series {
@@ -17,10 +18,12 @@ export interface Series {
  * screen-reader table.
  */
 export function AreaChart({ labels, series, height = 240, format = (v: number) => v.toLocaleString("en-PH"), caption, className, yZero = true }: { labels: string[]; series: Series[]; height?: number; format?: (v: number) => string; caption: string; className?: string; yZero?: boolean }) {
+  const t = useT();
+  const periodLabel = t("Period", "Panahon");
   const [ref, { width }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const gid = useId().replace(/:/g, "");
-  const pad = { t: 14, r: 16, b: 28, l: 48 };
+  const pad = { t: 14, r: 16, b: 30, l: 58 };
   const w = Math.max(0, width - pad.l - pad.r);
   const h = height - pad.t - pad.b;
 
@@ -75,17 +78,18 @@ export function AreaChart({ labels, series, height = 240, format = (v: number) =
               </linearGradient>
             ))}
           </defs>
-          {ticks.map((t) => (
-            <g key={t}>
-              <line x1={pad.l} x2={pad.l + w} y1={y(t)} y2={y(t)} stroke="var(--chart-grid)" strokeWidth={1} />
-              <text x={pad.l - 10} y={y(t)} dy="0.32em" textAnchor="end" className="fill-ink-3 text-[11px] tnum">
-                {tickLabel(t)}
+          {ticks.map((v) => (
+            <g key={v}>
+              <line x1={pad.l} x2={pad.l + w} y1={y(v)} y2={y(v)} stroke="var(--chart-grid)" strokeWidth={1} />
+              <text x={pad.l - 10} y={y(v)} dy="0.32em" textAnchor="end" className="fill-ink-3 text-[13px] tnum">
+                {tickLabel(v)}
               </text>
             </g>
           ))}
           {labels.map((l, i) =>
-            i % labelEvery === 0 || i === n - 1 ? (
-              <text key={l + i} x={x(i)} y={height - 8} textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"} className="fill-ink-3 text-[11px]">
+            // Every few labels, always the last, and never one crowding the last.
+            i === n - 1 || (i % labelEvery === 0 && n - 1 - i >= Math.ceil(labelEvery * 0.75)) ? (
+              <text key={l + i} x={x(i)} y={height - 8} textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"} className="fill-ink-3 text-[13px]">
                 {l}
               </text>
             ) : null,
@@ -110,12 +114,12 @@ export function AreaChart({ labels, series, height = 240, format = (v: number) =
       )}
       {hi !== null && width > 0 && (
         <div className="pointer-events-none absolute top-2 z-10 min-w-[160px] rounded-md bg-surface px-3 py-2.5 shadow-e2" style={{ left: tipLeft }} aria-hidden>
-          <p className="text-[0.75rem] font-medium text-ink-3">{labels[hi]}</p>
+          <p className="text-[0.875rem] font-medium text-ink-2">{labels[hi]}</p>
           {series.map((s) => (
-            <p key={s.key} className="mt-1 flex items-center gap-2 text-[0.8125rem]">
+            <p key={s.key} className="mt-1 flex items-center gap-2 text-[0.9375rem]">
               <span className="h-[2px] w-3 rounded-full" style={{ background: color(s.slot) }} />
               <span className="font-semibold text-ink tnum">{format(s.values[hi])}</span>
-              <span className="text-ink-3">{s.label}</span>
+              <span className="text-ink-2">{s.label}</span>
             </p>
           ))}
         </div>
@@ -123,11 +127,13 @@ export function AreaChart({ labels, series, height = 240, format = (v: number) =
       <div aria-live="polite" className="sr-only">
         {hi !== null ? `${labels[hi]}: ${series.map((s) => `${s.label} ${format(s.values[hi])}`).join(", ")}` : ""}
       </div>
-      <table className="sr-only">
+      {/* A table cannot shrink to the 1px of sr-only, so a wrapper hides it without widening the page. */}
+      <div className="sr-only">
+      <table>
         <caption>{caption}</caption>
         <thead>
           <tr>
-            <th scope="col">Period</th>
+            <th scope="col">{periodLabel}</th>
             {series.map((s) => (
               <th key={s.key} scope="col">{s.label}</th>
             ))}
@@ -144,6 +150,7 @@ export function AreaChart({ labels, series, height = 240, format = (v: number) =
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

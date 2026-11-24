@@ -11,7 +11,7 @@ export function EmptyState({ title, body, action, className, compact }: { title:
         <BladeMark size={30} className="opacity-70 grayscale-[0.35]" />
       </div>
       <p className="font-display text-[1.1rem] font-bold [font-stretch:92%]">{title}</p>
-      {body && <p className="mt-1 max-w-sm text-[0.9rem] text-ink-3">{body}</p>}
+      {body && <p className="mt-1 max-w-sm text-[1rem] text-ink-2">{body}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
@@ -24,7 +24,7 @@ export function ErrorState({ title = "We couldn't load this", body = "The connec
         <WarningOctagon size={28} weight="duotone" />
       </div>
       <p className="font-display text-[1.1rem] font-bold [font-stretch:92%]">{title}</p>
-      <p className="mt-1 max-w-sm text-[0.9rem] text-ink-3">{body}</p>
+      <p className="mt-1 max-w-sm text-[1rem] text-ink-2">{body}</p>
       {onRetry && (
         <Button variant="quiet" className="mt-5" icon={<ArrowClockwise size={16} weight="bold" />} onClick={onRetry}>
           Try again

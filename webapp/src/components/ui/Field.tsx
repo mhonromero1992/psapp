@@ -11,14 +11,14 @@ export function Field({
   const errId = error ? `${id}-err` : undefined;
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={id} className="text-[0.875rem] font-semibold text-ink">
+      <label htmlFor={id} className="text-[0.9375rem] font-semibold text-ink">
         {label}
         {optional && <span className="ml-1.5 font-normal text-ink-3">(optional)</span>}
       </label>
       {children({ id, describedBy: [hintId, errId].filter(Boolean).join(" ") || undefined, invalid: !!error })}
-      {hint && !error && <p id={hintId} className="text-[0.8125rem] text-ink-3">{hint}</p>}
+      {hint && !error && <p id={hintId} className="text-[0.9375rem] text-ink-2">{hint}</p>}
       {error && (
-        <p id={errId} className="flex items-center gap-1.5 text-[0.8125rem] font-medium text-negative" role="alert">
+        <p id={errId} className="flex items-center gap-1.5 text-[0.9375rem] font-medium text-negative" role="alert">
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden><circle cx="8" cy="8" r="7" fill="currentColor" /><path d="M8 4.5v4.2M8 11.2v.3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" /></svg>
           {error}
         </p>

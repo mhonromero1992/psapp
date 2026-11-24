@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useT } from "@/lib/i18n";
 import { dateTime } from "@/lib/format";
 import type { TimelineEvent } from "@/data/types";
 
@@ -12,11 +13,11 @@ export function Timeline({ events, upcoming = [], className }: { events: Timelin
           <Rail done current={i === lastIdx} last={i === lastIdx && upcoming.length === 0} />
           <div className="-mt-0.5 min-w-0 pb-1">
             <p className={cn("font-semibold leading-snug", i === lastIdx ? "text-ink" : "text-ink-2")}>{e.label}</p>
-            <p className="mt-0.5 text-[0.8125rem] text-ink-3">
+            <p className="mt-0.5 text-[0.9375rem] text-ink-2">
               {dateTime(e.at)}
               {e.by && <> · {e.by}</>}
             </p>
-            {e.note && <p className="mt-1.5 rounded-sm bg-sunken px-3 py-2 text-[0.875rem] text-ink-2">{e.note}</p>}
+            {e.note && <p className="mt-1.5 rounded-sm bg-sunken px-3 py-2 text-[0.9375rem] text-ink-2">{e.note}</p>}
           </div>
         </li>
       ))}
@@ -53,12 +54,13 @@ function Rail({ done, current, last }: { done: boolean; current: boolean; last: 
 
 /** Horizontal stepper for wizards. Shows numbers, never color alone. */
 export function Stepper({ steps, current, className }: { steps: string[]; current: number; className?: string }) {
+  const t = useT();
   return (
-    <ol className={cn("flex items-center gap-2", className)} aria-label="Progress">
+    <ol className={cn("flex items-center gap-1 sm:gap-2", className)} aria-label={t("Progress", "Progreso")}>
       {steps.map((s, i) => {
         const state = i < current ? "done" : i === current ? "current" : "todo";
         return (
-          <li key={s} className="flex min-w-0 flex-1 items-center gap-2" aria-current={state === "current" ? "step" : undefined}>
+          <li key={s} className="flex min-w-0 flex-1 items-center gap-1 last:flex-none sm:gap-2" aria-current={state === "current" ? "step" : undefined}>
             <span
               className={cn(
                 "grid size-7 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold tnum transition-colors duration-300",
@@ -73,9 +75,9 @@ export function Stepper({ steps, current, className }: { steps: string[]; curren
                 i + 1
               )}
             </span>
-            <span className={cn("hidden truncate text-[0.8125rem] font-semibold lg:block", state === "todo" ? "text-ink-3" : "text-ink")}>{s}</span>
-            {i < steps.length - 1 && <span aria-hidden className={cn("h-[2px] min-w-3 flex-1 rounded-full", i < current ? "bg-green-700/50" : "bg-line-strong")} />}
-            <span className="sr-only">{state === "done" ? "completed" : state === "current" ? "current step" : "not started"}</span>
+            <span className={cn("hidden truncate text-[0.875rem] font-semibold lg:block", state === "todo" ? "text-ink-3" : "text-ink")}>{s}</span>
+            {i < steps.length - 1 && <span aria-hidden className={cn("h-[2px] min-w-2 flex-1 rounded-full", i < current ? "bg-green-700/50" : "bg-line-strong")} />}
+            <span className="sr-only">{state === "done" ? t("completed", "tapos na") : state === "current" ? t("current step", "kasalukuyang hakbang") : t("not started", "hindi pa nasisimulan")}</span>
           </li>
         );
       })}
