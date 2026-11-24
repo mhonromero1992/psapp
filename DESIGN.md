@@ -1,6 +1,6 @@
 # PS-ACCESS · Design direction
 
-This repository is the **PS-ACCESS Member App** for **PSMBFI** (Public Safety Mutual Benefit Fund, Inc.). It ships as a phone app and as the same app on the web, where members sign in too. The full UI runs on sample data for demos (there is no backend yet).
+This repository is the **PS-ACCESS Member App** for **PSMBFI** (Public Safety Mutual Benefit Fund, Inc.). It ships as a phone app (React Native, at the repository root) and as the same app on the web (`webapp/`), where members sign in too. The full UI runs on sample data for demos (there is no backend yet). Sections 0 to 12 hold for both; section 13 is what differs on the phone.
 
 **Most members are older people.** Ease of use outranks density, novelty and decoration on every screen (section 0).
 
@@ -203,3 +203,18 @@ Purpose first; every animation answers "what does this tell the user?"
 | Separate with depth and space | Borders around every card |
 | One focal point per screen | Glow on cards, buttons, badges and icons at once |
 | Initials avatars | Invented profile photos or testimonial faces |
+
+## 13. The phone app (React Native)
+
+The same rules, in native terms. Tokens live in `src/config/theme.ts`; every screen reads them with `useTheme()`.
+
+- **Type:** Archivo only, in six static cuts named by their PostScript names (Regular, Medium, SemiBold, Bold, and SemiCondensed Bold and ExtraBold for headings and big figures). Never set `fontWeight` on them. The scale starts at 17 for body text; `small` (15) is the floor for anything a member must read. The member's Text size (Large 1.12x, Extra large 1.25x) multiplies the whole scale, on top of the phone's own font size (capped at 1.6x).
+- **Text colours:** `text`, `soft` for sentences under a heading, `muted` for short labels and dates only. Every pair is tested for WCAG AA in light and dark (`__tests__/theme.test.ts`).
+- **Touch:** 52 points minimum for controls, 68 for list rows. The bar's Back, Help, bell and avatar are 48.
+- **Buttons:** seven variants (`primary`, `positive`, `negative`, `secondary` as tonal, `quiet`, `ghost`, `light` on the night band). Press: scale 0.97 and a deeper fill; busy: a spinner beside the label; labels wrap rather than clip.
+- **Choices:** no native dropdowns. A choice opens a bottom sheet of big rows; dates are three choices (month, day, year). At Large and Extra large text, side-by-side choices (text size, screen) stack into rows so no word breaks.
+- **Flows:** `StepHeader` with the step in words, one decision per step, Back and Continue in a sticky footer, Cancel in the top bar that asks before clearing answers, Android back stepping back inside the flow, and Continue scrolling to the first problem. Money actions confirm in a dialog that repeats the amount large.
+- **Depth:** cards separate by shadow in light and by a hairline edge in dark. No glass on the phone: the tab bar floats on a solid panel.
+- **Motion:** the welcome medal swings in once on a spring and settles; under the phone's reduce-motion setting it is still. Screens slide in from the side (stack). Nothing else animates in on its own.
+- **Phone abilities:** photos come from the camera or gallery (`react-native-image-picker`), statements and "a copy of my data" go out through the share sheet, directions open Maps, and the fingerprint prompt is simulated until the backend exists.
+

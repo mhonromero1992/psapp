@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>NSCameraUsageDescription</key>
+	<string>PS-ACCESS uses the camera for photos of your ID, a photo of your face for the ID check, and photos of documents for your claims.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PS-ACCESS lets you choose photos of your ID and claim documents from your gallery.</string>
 	<key>CFBundleDisplayName</key>
 	<string>PS-ACCESS</string>
 	<key>CFBundleExecutable</key>

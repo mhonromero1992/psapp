@@ -1,10 +1,16 @@
-# PS-ACCESS Member App (prototype)
+# PS-ACCESS Member App: the web version
 
-The PSMBFI Member App from the PS-ACCESS proposal. It is a phone app and the same app on the web, built as a full UI on **sample data** for demos. There is no backend yet: everything runs in the browser and persists in `localStorage`.
+The web version of the PSMBFI Member App, where members sign in from a computer or a phone browser. The phone app itself (React Native) is at the [repository root](../README.md); both are built as a full UI on **sample data** for demos and share one sample-data model. There is no backend yet: everything runs in the browser and persists in `localStorage`.
 
-Most PSMBFI members are older, so the app is built for them first: 17px base text with a Large and Extra large setting, big touch targets, plain English and Filipino, fingerprint sign-in, and a "call me back" help path on every flow. Art direction and rules are in [DESIGN.md](./DESIGN.md).
+Most PSMBFI members are older, so the app is built for them first: 17px base text with a Large and Extra large setting, big touch targets, plain English and Filipino, fingerprint sign-in, and a "call me back" help path on every flow. Art direction and rules are in [DESIGN.md](../DESIGN.md).
 
 ## Run it
+
+From this folder:
+
+```bash
+cd webapp
+```
 
 ```bash
 npm install
@@ -82,6 +88,8 @@ src/
   data/                    domain types, reference data (agencies, loan products, benefits), sample generator
   store/                   Zustand stores: member data, session, preferences
 ```
+
+`src/data` and `src/lib/{format,random}.ts` are also read by the phone app: after changing them, run `npm run sync:webapp` at the repository root.
 
 ## Sample data and facts
 
